@@ -1,0 +1,3 @@
+/Users/longqi/Desktop/project/InfiniTAM/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/longqi/Desktop/project/InfiniTAM/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/longqi/Desktop/project/InfiniTAM/cmake-build-debug/CMakeFiles/InfiniTAM.dir
