@@ -30,13 +30,14 @@ void ITMColorTracker::TrackCamera(ITMTrackingState *trackingState, const ITMView
 
 	this->PrepareForEvaluation(view);
 
+	
 	ORUtils::SE3Pose currentPara(view->calib.trafo_rgb_to_depth.calib_inv * trackingState->pose_d->GetM());
 	for (int levelId = viewHierarchy->GetNoLevels() - 1; levelId >= 0; levelId--)
 	{
 		this->levelId = levelId;
 		this->iterationType = viewHierarchy->GetLevel(levelId)->iterationType;
 
-		minimizeLM(*this, currentPara);
+		minimizeLM(*this, currentPara); // 这里应该就是核心了
 	}
 
 	// these following will coerce the result back into the chosen

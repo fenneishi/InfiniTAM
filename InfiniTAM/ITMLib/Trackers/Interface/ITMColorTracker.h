@@ -14,6 +14,7 @@ namespace ITMLib
 	    tracking. Implementations would typically project down a
 	    point cloud into observed images and try to minimize the
 	    reprojection error.
+		用于执行基于点的颜色跟踪的引擎的基类。实现通常会将点云投射到观察到的图像中，并试图最小化重投影错误。
 	*/
 	class ITMColorTracker : public ITMTracker
 	{
@@ -23,7 +24,7 @@ namespace ITMLib
 		void PrepareForEvaluation(const ITMView *view);
 
 	protected: 
-		TrackerIterationType iterationType;
+		TrackerIterationType iterationType; // 应该是指你用什么来表示相机位姿，旋转矩阵or转换矩阵
 		ITMTrackingState *trackingState; const ITMView *view;
 		ITMImageHierarchy<ITMViewHierarchyLevel> *viewHierarchy;
 		int levelId;

@@ -48,6 +48,7 @@ ITMBasicEngine<TVoxel,TIndex>::ITMBasicEngine(const ITMLibSettings *settings, co
 	renderState_live = ITMRenderStateFactory<TIndex>::CreateRenderState(trackedImageSize, scene->sceneParams, memoryType);
 	renderState_freeview = NULL; //will be created if needed
 
+	// 建立引擎的时候，就会同时更新初始位姿
 	trackingState = new ITMTrackingState(trackedImageSize, memoryType);
 	tracker->UpdateInitialPose(trackingState);
 
@@ -241,16 +242,18 @@ static void QuaternionFromRotationMatrix(const double *matrix, double *q) {
 }
 #endif
 
+
 template <typename TVoxel, typename TIndex>
 ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement)
 {
-	// prepare image and turn it into a depth image
-	if (imuMeasurement == NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter);
+	// prepare image and turn it into a depth image 应该是建立view吧
+	// 用新的输入数据更新view
+	if (imuMeasurement == NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter); 
 	else viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter, imuMeasurement);
 
 	if (!mainProcessingActive) return ITMTrackingState::TRACKING_FAILED;
 
-	// tracking
+	// tracking 追踪
 	ORUtils::SE3Pose oldPose(*(trackingState->pose_d));
 	if (trackingActive) trackingController->Track(trackingState, view);
 
@@ -268,7 +271,7 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 		break;
 	}
 
-	//relocalisation
+	//relocalisation重定位
 	int addKeyframeIdx = -1;
 	if (settings->behaviourOnFailure == ITMLibSettings::FAILUREMODE_RELOCALISE)
 	{

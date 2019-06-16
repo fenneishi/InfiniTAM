@@ -172,9 +172,9 @@ void ITMExtendedTracker::SetEvaluationData(ITMTrackingState *trackingState, cons
 	{
 		viewHierarchy_Intensity->GetLevel(0)->intrinsics = view->calib.intrinsics_rgb.projectionParamsSimple.all;
 
-		// Convert RGB to intensity
+		// Convert RGB to intensity 讲RGB转换为强度图
 		lowLevelEngine->ConvertColourToIntensity(viewHierarchy_Intensity->GetLevel(0)->intensity_current, view->rgb);
-		lowLevelEngine->ConvertColourToIntensity(viewHierarchy_Intensity->GetLevel(0)->intensity_prev, view->rgb_prev);
+		lowLevelEngine->ConvertColourToIntensity(viewHierarchy_Intensity->GetLevel(0)->intensity_prev, view->rgb_prev); 
 
 		// Compute first level gradients
 		lowLevelEngine->GradientXY(viewHierarchy_Intensity->GetLevel(0)->gradients,
@@ -442,6 +442,7 @@ void ITMExtendedTracker::TrackCamera(ITMTrackingState *trackingState, const ITMV
 
 		float f_old = std::numeric_limits<float>::max();
 		float lambda = 1.0;
+
 
 		for (int iterNo = 0; iterNo < noIterationsPerLevel[levelId]; iterNo++)
 		{

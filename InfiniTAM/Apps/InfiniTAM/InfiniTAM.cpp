@@ -191,14 +191,16 @@ try
 		return -1;
 	}
 
+
 	ITMLibSettings *internalSettings = new ITMLibSettings();
 
 	ITMMainEngine *mainEngine = NULL;
+	// 我猜测这里是有多重类型可以选择，一个基础类型，另外一个是不适用sdf图，而使用surfels图，还有一个是同时多个角度的重建方式
 	switch (internalSettings->libMode)
 	{
 	case ITMLibSettings::LIBMODE_BASIC:
 		mainEngine = new ITMBasicEngine<ITMVoxel, ITMVoxelIndex>(internalSettings, imageSource->getCalib(), imageSource->getRGBImageSize(), imageSource->getDepthImageSize());
-		break;
+		break; // 从传递进去的参数可以看出，这里只是建立了一个ITMBasicEngine，并没有真的把数据传递进去
 	case ITMLibSettings::LIBMODE_BASIC_SURFELS:
 		mainEngine = new ITMBasicSurfelEngine<ITMSurfelT>(internalSettings, imageSource->getCalib(), imageSource->getRGBImageSize(), imageSource->getDepthImageSize());
 		break;
@@ -209,7 +211,7 @@ try
 		throw std::runtime_error("Unsupported library mode!");
 		break;
 	}
-
+	// 可以看出Initialise里会把imageSource数据真的传递进去
 	UIEngine::Instance()->Initialise(argc, argv, imageSource, imuSource, mainEngine, "./Files/Out", internalSettings->deviceType);
 	UIEngine::Instance()->Run();
 	UIEngine::Instance()->Shutdown();

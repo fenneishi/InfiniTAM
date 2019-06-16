@@ -115,7 +115,7 @@ void UIEngine::glutDisplayFunction()
 	uiEngine->needsRefresh = false;
 }
 
-void UIEngine::glutIdleFunction()
+void UIEngine::glutIdleFunction() // 从这里开始，根据用户的指令，进行帧处理
 {
 	UIEngine *uiEngine = UIEngine::Instance();
 
@@ -489,6 +489,13 @@ void UIEngine::glutMouseWheelFunction(int button, int dir, int x, int y)
 	uiEngine->needsRefresh = true;
 }
 
+
+
+
+
+
+
+
 void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSource, IMUSourceEngine *imuSource, ITMMainEngine *mainEngine,
 	const char *outFolder, ITMLibSettings::DeviceType deviceType)
 {
@@ -549,7 +556,7 @@ void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSourc
 	glutKeyboardUpFunc(UIEngine::glutKeyUpFunction);
 	glutMouseFunc(UIEngine::glutMouseButtonFunction);
 	glutMotionFunc(UIEngine::glutMouseMoveFunction);
-	glutIdleFunc(UIEngine::glutIdleFunction);
+	glutIdleFunc(UIEngine::glutIdleFunction); // 进入到”根据用户指令进行帧处理“的地方
 
 #ifdef FREEGLUT
 	glutMouseWheelFunc(UIEngine::glutMouseWheelFunction);
@@ -594,6 +601,13 @@ void UIEngine::Initialise(int & argc, char** argv, ImageSourceEngine *imageSourc
 	printf("initialised.\n");
 }
 
+
+
+
+
+
+
+
 void UIEngine::SaveScreenshot(const char *filename) const
 {
 	ITMUChar4Image screenshot(getWindowSize(), true, false);
@@ -606,8 +620,16 @@ void UIEngine::GetScreenshot(ITMUChar4Image *dest) const
 	glReadPixels(0, 0, dest->noDims.x, dest->noDims.y, GL_RGBA, GL_UNSIGNED_BYTE, dest->GetData(MEMORYDEVICE_CPU));
 }
 
-void UIEngine::ProcessFrame()
+
+
+
+
+
+
+
+void UIEngine::ProcessFrame() // 帧处理，每次处理一帧
 {
+	// 获取当前帧
 	if (!imageSource->hasMoreImages()) return;
 	imageSource->getImages(inputRGBImage, inputRawDepthImage);
 
@@ -679,3 +701,7 @@ void UIEngine::Shutdown()
 	delete instance;
 	instance = NULL;
 }
+
+
+
+

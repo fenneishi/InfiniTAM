@@ -5,6 +5,7 @@
 namespace ITMLib
 {
 	/// The tracker iteration type used to define the tracking iteration regime
+	// 用于定于track的迭代机制，猜测含义是：只迭代旋转矩阵，还是只有TRANSLATION，还是both,我觉得一般都是both
 	enum TrackerIterationType
 	{
 		TRACKER_ITERATION_ROTATION,

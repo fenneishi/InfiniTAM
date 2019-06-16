@@ -7,13 +7,17 @@
 
 using namespace ITMLib;
 
+// 构造函数
 ITMDepthTracker::ITMDepthTracker(Vector2i imgSize, TrackerIterationType *trackingRegime, int noHierarchyLevels,
 	float terminationThreshold, float failureDetectorThreshold, const ITMLowLevelEngine *lowLevelEngine, MemoryDeviceType memoryType)
 {
+	// 设置场景和当前帧金字塔
 	viewHierarchy = new ITMImageHierarchy<ITMTemplatedHierarchyLevel<ITMFloatImage> >(imgSize, trackingRegime, noHierarchyLevels, memoryType, true);
 	sceneHierarchy = new ITMImageHierarchy<ITMSceneHierarchyLevel>(imgSize, trackingRegime, noHierarchyLevels, memoryType, true);
 
+	// 建立每层金字塔迭代数的存放容器
 	this->noIterationsPerLevel = new int[noHierarchyLevels];
+	// 建立每层金字塔距离阈值存放容器
 	this->distThresh = new float[noHierarchyLevels];
 
 	SetupLevels(noHierarchyLevels * 2, 2, 0.01f, 0.002f);
@@ -261,10 +265,10 @@ void ITMDepthTracker::TrackCamera(ITMTrackingState *trackingState, const ITMView
 
 		for (int iterNo = 0; iterNo < noIterationsPerLevel[levelId]; iterNo++)
 		{
-			// evaluate error function and gradients
-			noValidPoints_new = this->ComputeGandH(f_new, nabla_new, hessian_new, approxInvPose);
+			// evaluate error function and gradients 评估代价函数和梯度
+			noValidPoints_new = this->ComputeGandH(f_new, nabla_new, hessian_new, approxInvPose); // 经过追踪，发现这里面并没有修改approxInvPose这个参数
 
-			// check if error increased. If so, revert
+			// check if error increased. If so, revert 如果误差在增大，就重置。
 			if ((noValidPoints_new <= 0) || (f_new > f_old)) {
 				trackingState->pose_d->SetFrom(&lastKnownGoodPose);
 				approxInvPose = trackingState->pose_d->GetInvM();
@@ -282,14 +286,14 @@ void ITMDepthTracker::TrackCamera(ITMTrackingState *trackingState, const ITMView
 			for (int i = 0; i < 6 * 6; ++i) A[i] = hessian_good[i];
 			for (int i = 0; i < 6; ++i) A[i + i * 6] *= 1.0f + lambda;
 
-			// compute a new step and make sure we've got an SE3
+			// compute a new step and make sure we've got an SE3 更新位姿
 			ComputeDelta(step, nabla_good, A, iterationType != TRACKER_ITERATION_BOTH);
 			ApplyDelta(approxInvPose, step, approxInvPose);
 			trackingState->pose_d->SetInvM(approxInvPose);
-			trackingState->pose_d->Coerce();
+			trackingState->pose_d->Coerce(); // 强制正交化
 			approxInvPose = trackingState->pose_d->GetInvM();
 
-			// if step is small, assume it's going to decrease the error and finish
+			// if step is small, assume it's going to decrease the error and finish 如果步长太小就停止循环
 			if (HasConverged(step)) break;
 		}
 	}
