@@ -16,6 +16,7 @@ namespace ORUtils
 	class Image : private MemoryBlock<T>
 	{
 	public:
+	    bool NoReSet; //构造函数调用时候，将这个值置为ture,如果调用了setFrom(..)接口进行了重置，那么这个值就从true变成了false;
 		/** Expose public MemoryBlock<T> member variables. */
 		using MemoryBlock<T>::dataSize;
 
@@ -46,18 +47,21 @@ namespace ORUtils
 			: MemoryBlock<T>(noDims.x * noDims.y, allocate_CPU, allocate_CUDA, metalCompatible)
 		{
 			this->noDims = noDims;
+            NoReSet= true;
 		}
 
 		Image(bool allocate_CPU, bool allocate_CUDA, bool metalCompatible = true)
 			: MemoryBlock<T>(0, allocate_CPU, allocate_CUDA, metalCompatible)
 		{
 			this->noDims = Vector2<int>(0, 0);
+            NoReSet= true;
 		}
 
 		Image(Vector2<int> noDims, MemoryDeviceType memoryType)
 			: MemoryBlock<T>(noDims.x * noDims.y, memoryType)
 		{
 			this->noDims = noDims;
+            NoReSet= true;
 		}
 
 		/** Resize an image, losing all old image data.
@@ -74,6 +78,7 @@ namespace ORUtils
 		{
 			ChangeDims(source->noDims);
 			MemoryBlock<T>::SetFrom(source, memoryCopyDirection);
+            NoReSet= false;
 		}
 
 		void Swap(Image<T>& rhs)
@@ -83,7 +88,7 @@ namespace ORUtils
 		}
 
 		// Suppress the default copy constructor and assignment operator
-		Image(const Image&);
+		Image(const Image&); //
 		Image& operator=(const Image&);
 	};
 }

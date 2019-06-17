@@ -22,7 +22,8 @@ namespace ITMLib
 	public:
 		void Track(ITMTrackingState *trackingState, const ITMView *view)
 		{
-			tracker->TrackCamera(trackingState, view);
+			std::cout<<"will change here"<<std::endl;
+		    tracker->TrackCamera(trackingState, view);
 		}
 
 		template <typename TSurfel>

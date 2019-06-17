@@ -19,12 +19,8 @@
   <component name="ChangeListManager">
     <list default="true" id="23538b71-8f7b-4651-ad14-85fd50483de3" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Apps/InfiniTAM/InfiniTAM.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Apps/InfiniTAM/InfiniTAM.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ITMLib/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ITMLib/Core/ITMBasicEngine.tpp" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/Core/ITMBasicEngine.tpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ITMLib/Core/ITMMainEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/Core/ITMMainEngine.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/CPU/ITMViewBuilder_CPU.h" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/CPU/ITMViewBuilder_CPU.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ORUtils/Image.h" beforeDir="false" afterPath="$PROJECT_DIR$/ORUtils/Image.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -44,74 +40,21 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ITMLib/Trackers/Interface/ITMDepthTracker.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="158">
-              <caret line="100" column="39" selection-start-line="100" selection-start-column="39" selection-end-line="100" selection-end-column="39" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="25" column="29" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMBasicEngine.tpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="251" column="27" selection-start-line="251" selection-start-column="27" selection-end-line="251" selection-end-column="27" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/Interface/ITMViewBuilder.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="26" column="27" selection-start-line="26" selection-start-column="27" selection-end-line="26" selection-end-column="27" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/CPU/ITMViewBuilder_CPU.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="33" column="60" selection-start-line="33" selection-start-column="60" selection-end-line="33" selection-end-column="60" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ITMLib/Utils/ITMImageTypes.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="21" column="20" selection-start-line="21" selection-start-column="20" selection-end-line="21" selection-end-column="20" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="29" column="36" selection-start-line="29" selection-start-column="36" selection-end-line="29" selection-end-column="36" />
-              <folding>
-                <element signature="e#854#893#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="293">
+              <caret line="261" column="45" selection-start-line="261" selection-start-column="45" selection-end-line="261" selection-end-column="45" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Misc/ITMIMUCalibrator.h">
-          <provider selected="true" editor-type-id="text-editor" />
+        <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="24" column="53" selection-start-line="24" selection-start-column="53" selection-end-line="24" selection-end-column="53" />
+            </state>
+          </provider>
         </entry>
       </file>
     </leaf>
@@ -137,6 +80,8 @@
         <option value="$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/CPU/ITMViewBuilder_CPU.h" />
         <option value="$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/CPU/ITMViewBuilder_CPU.cpp" />
         <option value="$PROJECT_DIR$/ITMLib/Objects/Misc/ITMIMUCalibrator.h" />
+        <option value="$PROJECT_DIR$/ORUtils/Image.h" />
+        <option value="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" />
       </list>
     </option>
   </component>
@@ -193,7 +138,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -267,18 +212,18 @@
       <workItem from="1560677117258" duration="444000" />
       <workItem from="1560678059983" duration="830000" />
       <workItem from="1560678965618" duration="422000" />
-      <workItem from="1560679495454" duration="18948000" />
+      <workItem from="1560679495454" duration="20059000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20904000" />
+    <option name="totallyTimeSpent" value="22015000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3590844" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.115879826" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -488,13 +433,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="237">
-          <caret line="22" column="63" lean-forward="true" selection-start-line="22" selection-start-column="63" selection-end-line="22" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ITMLib/Trackers/Interface/ITMCompositeTracker.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="259">
@@ -506,20 +444,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="357">
           <caret line="54" column="72" selection-start-line="54" selection-start-column="63" selection-end-line="54" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Trackers/Interface/ITMDepthTracker.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
-          <caret line="100" column="39" selection-start-line="100" selection-start-column="39" selection-end-line="100" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="25" column="29" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -555,17 +479,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMBasicEngine.tpp">
+    <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Misc/ITMIMUCalibrator.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="251" column="27" selection-start-line="251" selection-start-column="27" selection-end-line="251" selection-end-column="27" />
+        <state relative-caret-position="390">
+          <caret line="26" column="36" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/CPU/ITMViewBuilder_CPU.cpp">
+    <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="33" column="60" selection-start-line="33" selection-start-column="60" selection-end-line="33" selection-end-column="60" />
+        <state relative-caret-position="1215">
+          <caret line="82" lean-forward="true" selection-start-line="82" selection-end-line="82" />
+          <folding>
+            <element signature="e#854#893#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -576,6 +503,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/CPU/ITMViewBuilder_CPU.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="33" column="60" selection-start-line="33" selection-start-column="60" selection-end-line="33" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ITMLib/Engines/ViewBuilding/Interface/ITMViewBuilder.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
@@ -583,18 +517,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
+    <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="29" column="36" selection-start-line="29" selection-start-column="36" selection-end-line="29" selection-end-column="36" />
-          <folding>
-            <element signature="e#854#893#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="163">
+          <caret line="25" column="29" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Misc/ITMIMUCalibrator.h">
-      <provider selected="true" editor-type-id="text-editor" />
+    <entry file="file://$PROJECT_DIR$/ITMLib/Trackers/Interface/ITMDepthTracker.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="100" column="39" selection-start-line="100" selection-start-column="39" selection-end-line="100" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMBasicEngine.tpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="293">
+          <caret line="261" column="45" selection-start-line="261" selection-start-column="45" selection-end-line="261" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="24" column="53" selection-start-line="24" selection-start-column="53" selection-end-line="24" selection-end-column="53" />
+        </state>
+      </provider>
     </entry>
   </component>
 </project>
