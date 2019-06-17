@@ -15,11 +15,18 @@ SET(targetname ITMLib)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseCUDA.cmake)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseOpenMP.cmake)
 
+
+
+
+
+
+
+
 #############################
 # Specify the project files #
 #############################
 
-##
+## toplevel
 SET(ITMLIB_TOPLEVEL_CPU_SOURCES
 CPUInstantiations.cpp
 )
@@ -32,7 +39,7 @@ SET(ITMLIB_TOPLEVEL_HEADERS
 ITMLibDefines.h
 )
 
-##
+## core
 SET(ITMLIB_CORE_SOURCES
 Core/ITMBasicEngine.tpp
 Core/ITMBasicSurfelEngine.tpp
@@ -51,7 +58,7 @@ Core/ITMMultiEngine.h
 Core/ITMTrackingController.h
 )
 
-##
+## lowlevel
 SET(ITMLIB_ENGINES_LOWLEVEL_SOURCES
 Engines/LowLevel/ITMLowLevelEngineFactory.cpp
 )
@@ -88,7 +95,7 @@ SET(ITMLIB_ENGINES_LOWLEVEL_SHARED_HEADERS
 Engines/LowLevel/Shared/ITMLowLevelEngine_Shared.h
 )
 
-##
+## meshing
 SET(ITMLIB_ENGINES_MESHING_HEADERS
 Engines/Meshing/ITMMeshingEngineFactory.h
 Engines/Meshing/ITMMultiMeshingEngineFactory.h
@@ -128,7 +135,7 @@ Engines/Meshing/Shared/ITMMeshingEngine_Shared.h
 Engines/Meshing/Shared/ITMMultiMeshingEngine_Shared.h
 )
 
-##
+##multiscene
 SET(ITMLIB_ENGINES_MULTISCENE_SOURCES
 Engines/MultiScene/ITMActiveMapManager.cpp
 Engines/MultiScene/ITMGlobalAdjustmentEngine.cpp
@@ -141,7 +148,7 @@ Engines/MultiScene/ITMGlobalAdjustmentEngine.h
 Engines/MultiScene/ITMMapGraphManager.h
 )
 
-##
+##reconstruction
 SET(ITMLIB_ENGINES_RECONSTRUCTION_SOURCES
 Engines/Reconstruction/ITMSurfelSceneReconstructionEngineFactory.tpp
 )
@@ -189,7 +196,7 @@ Engines/Reconstruction/Shared/ITMSceneReconstructionEngine_Shared.h
 Engines/Reconstruction/Shared/ITMSurfelSceneReconstructionEngine_Shared.h
 )
 
-##
+##swapping
 SET(ITMLIB_ENGINES_SWAPPING_HEADERS
 Engines/Swapping/ITMSwappingEngineFactory.h
 )
@@ -222,7 +229,7 @@ SET(ITMLIB_ENGINES_SWAPPING_SHARED_HEADERS
 Engines/Swapping/Shared/ITMSwappingEngine_Shared.h
 )
 
-##
+##viewbuilding
 SET(ITMLIB_ENGINES_VIEWBUILDING_SOURCES
 Engines/ViewBuilding/ITMViewBuilderFactory.cpp
 )
@@ -259,7 +266,7 @@ SET(ITMLIB_ENGINES_VIEWBUILDING_SHARED_HEADERS
 Engines/ViewBuilding/Shared/ITMViewBuilder_Shared.h
 )
 
-##
+##visualisation
 SET(ITMLIB_ENGINES_VISUALISATION_SOURCES
 Engines/Visualisation/ITMSurfelVisualisationEngineFactory.tpp
 )
@@ -317,7 +324,7 @@ Engines/Visualisation/Shared/ITMSurfelVisualisationEngine_Shared.h
 Engines/Visualisation/Shared/ITMVisualisationEngine_Shared.h
 )
 
-##
+##object_camera
 SET(ITMLIB_OBJECTS_CAMERA_SOURCES
 Objects/Camera/ITMCalibIO.cpp
 )
@@ -330,23 +337,23 @@ Objects/Camera/ITMIntrinsics.h
 Objects/Camera/ITMRGBDCalib.h
 )
 
-##
+##objec_meshing
 SET(ITMLIB_OBJECTS_MESHING_HEADERS
 Objects/Meshing/ITMMesh.h
 )
 
-##
+##object_misc
 SET(ITMLIB_OBJECTS_MISC_HEADERS
 Objects/Misc/ITMIMUCalibrator.h
 Objects/Misc/ITMIMUMeasurement.h
 Objects/Misc/ITMPointCloud.h
 )
 
-##
+##object_renderstates
 SET(ITMLIB_OBJECTS_RENDERSTATES_SOURCES
 Objects/RenderStates/ITMSurfelRenderState.cpp
 )
-
+## object_rendstates
 SET(ITMLIB_OBJECTS_RENDERSTATES_HEADERS
 Objects/RenderStates/ITMRenderState.h
 Objects/RenderStates/ITMRenderStateMultiScene.h
@@ -355,7 +362,7 @@ Objects/RenderStates/ITMRenderStateFactory.h
 Objects/RenderStates/ITMSurfelRenderState.h
 )
 
-##
+##object_scene
 SET(ITMLIB_OBJECTS_SCENE_HEADERS
 Objects/Scene/ITMGlobalCache.h
 Objects/Scene/ITMLocalMap.h
@@ -370,7 +377,7 @@ Objects/Scene/ITMVoxelBlockHash.h
 Objects/Scene/ITMVoxelTypes.h
 )
 
-##
+##object_tracking
 SET(ITMLIB_OBJECTS_TRACKING_HEADERS
 Objects/Tracking/ITMDepthHierarchyLevel.h
 Objects/Tracking/ITMImageHierarchy.h
@@ -383,13 +390,15 @@ Objects/Tracking/ITMViewHierarchyLevel.h
 Objects/Tracking/TrackerIterationType.h
 )
 
-##
+##object_views
 SET(ITMLIB_OBJECTS_VIEWS_HEADERS
 Objects/Views/ITMView.h
 Objects/Views/ITMViewIMU.h
 )
 
-##
+
+
+##trackers
 SET(ITMLIB_TRACKERS_HEADERS
 Trackers/ITMTrackerFactory.h
 )
@@ -449,7 +458,7 @@ Trackers/Shared/ITMDepthTracker_Shared.h
 Trackers/Shared/ITMExtendedTracker_Shared.h
 )
 
-##
+##utils
 SET(ITMLIB_UTILS_SOURCES
 Utils/ITMLibSettings.cpp
 )

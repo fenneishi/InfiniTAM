@@ -246,15 +246,19 @@ static void QuaternionFromRotationMatrix(const double *matrix, double *q) {
 template <typename TVoxel, typename TIndex>
 ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement)
 {
-	// prepare image and turn it into a depth image 应该是建立view吧
-	// 用新的输入数据更新view
+	// prepare image and turn it into a depth image
+	// 更新view
 	if (imuMeasurement == NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter); 
 	else viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter, imuMeasurement);
 
+	//
 	if (!mainProcessingActive) return ITMTrackingState::TRACKING_FAILED;
 
-	// tracking 追踪
+
+	// 保存位姿
 	ORUtils::SE3Pose oldPose(*(trackingState->pose_d));
+
+    // track
 	if (trackingActive) trackingController->Track(trackingState, view);
 
 	ITMTrackingState::TrackingResult trackerResult = ITMTrackingState::TRACKING_GOOD;

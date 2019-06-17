@@ -184,6 +184,8 @@ try
 	ImageSourceEngine *imageSource = NULL;
 	IMUSourceEngine *imuSource = NULL;
 
+
+
 	CreateDefaultImageSource(imageSource, imuSource, arg1, arg2, arg3, arg4);
 	if (imageSource==NULL)
 	{
@@ -193,6 +195,8 @@ try
 
 
 	ITMLibSettings *internalSettings = new ITMLibSettings();
+
+
 
 	ITMMainEngine *mainEngine = NULL;
 	// 我猜测这里是有多重类型可以选择，一个基础类型，另外一个是不适用sdf图，而使用surfels图，还有一个是同时多个角度的重建方式
@@ -211,6 +215,9 @@ try
 		throw std::runtime_error("Unsupported library mode!");
 		break;
 	}
+
+
+
 	// 可以看出Initialise里会把imageSource数据真的传递进去
 	UIEngine::Instance()->Initialise(argc, argv, imageSource, imuSource, mainEngine, "./Files/Out", internalSettings->deviceType);
 	UIEngine::Instance()->Run();
@@ -221,6 +228,8 @@ try
 	delete imageSource;
 	if (imuSource != NULL) delete imuSource;
 	return 0;
+
+
 }
 catch(std::exception& e)
 {
