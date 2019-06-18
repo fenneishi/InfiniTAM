@@ -11,6 +11,9 @@ ORUtils/CMakeFiles/ORUtils.dir/FileUtils.cpp.o: ../ORUtils/MemoryDeviceType.h
 ORUtils/CMakeFiles/ORUtils.dir/FileUtils.cpp.o: ../ORUtils/MetalContext.h
 ORUtils/CMakeFiles/ORUtils.dir/FileUtils.cpp.o: ../ORUtils/PlatformIndependence.h
 ORUtils/CMakeFiles/ORUtils.dir/FileUtils.cpp.o: ../ORUtils/Vector.h
+ORUtils/CMakeFiles/ORUtils.dir/FileUtils.cpp.o: /usr/local/include/png.h
+ORUtils/CMakeFiles/ORUtils.dir/FileUtils.cpp.o: /usr/local/include/pngconf.h
+ORUtils/CMakeFiles/ORUtils.dir/FileUtils.cpp.o: /usr/local/include/pnglibconf.h
 
 ORUtils/CMakeFiles/ORUtils.dir/KeyValueConfig.cpp.o: ../ORUtils/KeyValueConfig.cpp
 ORUtils/CMakeFiles/ORUtils.dir/KeyValueConfig.cpp.o: ../ORUtils/KeyValueConfig.h

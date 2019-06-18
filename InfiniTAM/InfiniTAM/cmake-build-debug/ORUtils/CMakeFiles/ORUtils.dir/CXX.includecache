@@ -52,6 +52,16 @@ Vector.h
 
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/MathUtils.h
 
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Matrix.h
+string.h
+-
+ostream
+-
+PlatformIndependence.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/PlatformIndependence.h
+Vector.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Vector.h
+
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/MemoryBlock.h
 MemoryDeviceType.h
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/MemoryDeviceType.h
@@ -84,6 +94,18 @@ cstdio
 stdexcept
 -
 
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/SE3Pose.cpp
+math.h
+-
+SE3Pose.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/SE3Pose.h
+
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/SE3Pose.h
+Vector.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Vector.h
+Matrix.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Matrix.h
+
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Vector.h
 math.h
 -
@@ -93,4 +115,24 @@ MathUtils.h
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/MathUtils.h
 PlatformIndependence.h
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/PlatformIndependence.h
+
+/usr/local/include/png.h
+pnglibconf.h
+/usr/local/include/pnglibconf.h
+pngconf.h
+/usr/local/include/pngconf.h
+
+/usr/local/include/pngconf.h
+limits.h
+-
+stddef.h
+-
+stdio.h
+-
+setjmp.h
+-
+time.h
+-
+
+/usr/local/include/pnglibconf.h
 

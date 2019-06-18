@@ -13,9 +13,6 @@ set(CMAKE_CXX_COMPILER_ID "Clang")
 set(CMAKE_TARGET_DEFINITIONS_CXX
   "COMPILE_WITHOUT_CUDA"
   "COMPILE_WITHOUT_OpenNI"
-  "DISABLE_LIBUSB_1_0"
-  "DISABLE_PCAP"
-  "DISABLE_PNG"
   "qh_QHpointer"
   "vtkDomainsChemistry_AUTOINIT=1(vtkDomainsChemistryOpenGL2)"
   "vtkIOExport_AUTOINIT=2(vtkIOExportOpenGL2,vtkIOExportPDF)"
@@ -39,8 +36,8 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/local/include/eigen3"
   "/usr/local/Cellar/flann/1.9.1_7/include"
   "/usr/local/Cellar/glew/2.1.0/include"
-  "/usr/local/include/opencv4"
   "/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/GLUT.framework/Headers"
+  "/usr/local/include/opencv4"
   )
 
 # Targets to which this target links.

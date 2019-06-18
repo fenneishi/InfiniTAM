@@ -52,9 +52,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add option="-DCOMPILE_WITHOUT_OpenNI"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
@@ -68,8 +65,8 @@
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/usr/local/Cellar/flann/1.9.1_7/include"/>
 					<Add directory="/usr/local/Cellar/glew/2.1.0/include"/>
-					<Add directory="/usr/local/include/opencv4"/>
 					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/GLUT.framework/Headers"/>
+					<Add directory="/usr/local/include/opencv4"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -f &quot;/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/cmake-build-debug/Apps/InfiniTAM/Makefile&quot;  VERBOSE=1 InfiniTAM"/>
@@ -93,9 +90,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add option="-DCOMPILE_WITHOUT_OpenNI"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
@@ -109,8 +103,8 @@
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/usr/local/Cellar/flann/1.9.1_7/include"/>
 					<Add directory="/usr/local/Cellar/glew/2.1.0/include"/>
-					<Add directory="/usr/local/include/opencv4"/>
 					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/GLUT.framework/Headers"/>
+					<Add directory="/usr/local/include/opencv4"/>
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -f &quot;/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/cmake-build-debug/Apps/InfiniTAM/Makefile&quot;  VERBOSE=1 InfiniTAM/fast"/>
@@ -134,9 +128,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add option="-DCOMPILE_WITHOUT_OpenNI"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
@@ -174,9 +165,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add option="-DCOMPILE_WITHOUT_OpenNI"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
@@ -214,9 +202,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>
@@ -253,9 +238,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>
@@ -292,9 +274,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add option="-DCOMPILE_WITHOUT_Kinect2"/>
 					<Add option="-DCOMPILE_WITHOUT_OpenNI"/>
@@ -334,9 +313,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add option="-DCOMPILE_WITHOUT_Kinect2"/>
 					<Add option="-DCOMPILE_WITHOUT_OpenNI"/>
@@ -376,9 +352,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>
@@ -415,9 +388,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>
@@ -454,9 +424,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>
 					<Add directory="/usr/local/opt/python/Frameworks/Python.framework/Versions/3.7/include/python3.7m"/>
@@ -492,9 +459,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>
 					<Add directory="/usr/local/opt/python/Frameworks/Python.framework/Versions/3.7/include/python3.7m"/>
@@ -530,9 +494,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>
@@ -569,9 +530,6 @@
 					<Add option="-DvtkRenderingOpenGL2_AUTOINIT=1(vtkRenderingGL2PSOpenGL2)"/>
 					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL2)"/>
 					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
 					<Add option="-DCOMPILE_WITHOUT_CUDA"/>
 					<Add directory="/usr/local/Cellar/vtk/8.2.0/include/vtk-8.2"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include"/>

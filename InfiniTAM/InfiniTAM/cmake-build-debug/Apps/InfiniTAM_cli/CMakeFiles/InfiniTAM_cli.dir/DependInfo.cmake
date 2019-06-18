@@ -13,9 +13,6 @@ set(CMAKE_CXX_COMPILER_ID "Clang")
 set(CMAKE_TARGET_DEFINITIONS_CXX
   "COMPILE_WITHOUT_CUDA"
   "COMPILE_WITHOUT_OpenNI"
-  "DISABLE_LIBUSB_1_0"
-  "DISABLE_PCAP"
-  "DISABLE_PNG"
   "qh_QHpointer"
   "vtkDomainsChemistry_AUTOINIT=1(vtkDomainsChemistryOpenGL2)"
   "vtkIOExport_AUTOINIT=2(vtkIOExportOpenGL2,vtkIOExportPDF)"

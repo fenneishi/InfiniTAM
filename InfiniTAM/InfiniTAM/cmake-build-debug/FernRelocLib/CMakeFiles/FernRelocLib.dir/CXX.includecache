@@ -22,6 +22,20 @@ fstream
 ../ORUtils/Image.h
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Image.h
 
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/FernRelocLib/PoseDatabase.cpp
+PoseDatabase.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/FernRelocLib/PoseDatabase.h
+fstream
+-
+iterator
+-
+
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/FernRelocLib/PoseDatabase.h
+vector
+-
+../ORUtils/SE3Pose.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/SE3Pose.h
+
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/CUDADefines.h
 cuda.h
 -
@@ -43,6 +57,16 @@ Vector.h
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Vector.h
 
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/MathUtils.h
+
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Matrix.h
+string.h
+-
+ostream
+-
+PlatformIndependence.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/PlatformIndependence.h
+Vector.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Vector.h
 
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/MemoryBlock.h
 MemoryDeviceType.h
@@ -75,6 +99,12 @@ cstdio
 -
 stdexcept
 -
+
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/SE3Pose.h
+Vector.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Vector.h
+Matrix.h
+/Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Matrix.h
 
 /Users/longqi/Desktop/project/code/InfiniTAM/InfiniTAM/ORUtils/Vector.h
 math.h

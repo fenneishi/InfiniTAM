@@ -44,15 +44,17 @@ ENDIF()
 # FIND_PACKAGE( PCL REQUIRED COMPONENTS common io visualization filters )
 find_package(PCL 1.8 REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
 # list(REMOVE_ITEM PCL_LIBRARIES "vtkproj4") # use this in Ubuntu 16.04
 
 # 增加opencv的依赖
 # find openCv
 find_package (OpenCV REQUIRED)
-#set(OpenCV_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS} /usr/local/include/opencv4/)
-include_directories ("/usr/local/include/opencv4/")
+set(OpenCV_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS} /usr/local/include/opencv4/)
+include_directories (${OpenCV_INCLUDE_DIRS})
+
+# 输出find结果
+MESSAGE("PCL_INCLUDE_DIRS:::::::::::" ${PCL_INCLUDE_DIRS})
+MESSAGE("PCL_LIBS::::::::::::" ${PCL_LIBS})
 MESSAGE("OpenCV_INCLUDE_DIRS:::::::::::" ${OpenCV_INCLUDE_DIRS})
 MESSAGE("OpenCV_LIBS::::::::::::" ${OpenCV_LIBS})
 
