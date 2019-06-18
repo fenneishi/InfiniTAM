@@ -19,12 +19,6 @@
   <component name="ChangeListManager">
     <list default="true" id="23538b71-8f7b-4651-ad14-85fd50483de3" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ITMLib/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ORUtils/Image.h" beforeDir="false" afterPath="$PROJECT_DIR$/ORUtils/Image.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ORUtils/Vector.h" beforeDir="false" afterPath="$PROJECT_DIR$/ORUtils/Vector.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -51,7 +45,7 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="389">
+            <state relative-caret-position="93">
               <caret line="77" column="40" selection-start-line="77" selection-start-column="40" selection-end-line="77" selection-end-column="40" />
               <folding>
                 <element signature="e#104#124#0" expanded="true" />
@@ -65,7 +59,7 @@
         <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="75">
-              <caret line="5" column="28" lean-forward="true" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
+              <caret line="5" column="28" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -106,7 +100,7 @@
         <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="210">
-              <caret line="15" column="31" lean-forward="true" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
+              <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -288,19 +282,19 @@
       <workItem from="1560679495454" duration="24018000" />
       <workItem from="1560767454542" duration="2480000" />
       <workItem from="1560837142563" duration="1131000" />
-      <workItem from="1560838486909" duration="4754000" />
+      <workItem from="1560838486909" duration="4912000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="34339000" />
+    <option name="totallyTimeSpent" value="34497000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4942717" visible="true" weight="0.3118741" />
-      <window_info id="Structure" order="1" sideWeight="0.5057283" side_tool="true" visible="true" weight="0.3118741" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49415204" visible="true" weight="0.3118741" />
+      <window_info id="Structure" order="1" sideWeight="0.50584793" side_tool="true" visible="true" weight="0.3118741" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
@@ -314,7 +308,7 @@
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="bottom" id="CMake" order="11" weight="0.09518072" />
-      <window_info active="true" anchor="bottom" id="Messages" order="12" visible="true" weight="0.26385543" />
+      <window_info active="true" anchor="bottom" id="Messages" order="12" visible="true" weight="0.17590362" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.021459227" />
@@ -635,7 +629,7 @@
     <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
-          <caret line="15" column="31" lean-forward="true" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
+          <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
         </state>
       </provider>
     </entry>
@@ -668,13 +662,13 @@
     <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
-          <caret line="5" column="28" lean-forward="true" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
+          <caret line="5" column="28" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="389">
+        <state relative-caret-position="93">
           <caret line="77" column="40" selection-start-line="77" selection-start-column="40" selection-end-line="77" selection-end-column="40" />
           <folding>
             <element signature="e#104#124#0" expanded="true" />
