@@ -36,6 +36,7 @@ using namespace std;
 #include <pcl/filters/voxel_grid.h>
 
 #include "../Utils/ITMImageTypes.h"
+#include "../../ORUtils/MemoryDeviceType.h" // 调用T GetElement(int n, MemoryDeviceType memoryType)接口所需。
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -57,6 +58,22 @@ namespace ITMLib
 
         void ITMUChar4Image_to_Mat(const ITMUChar4Image *rgb,cv::Mat &rgb_Mat)
         {
+            std::cout<<"size.x:"<<rgb->noDims.x<<",size.y:"<<rgb->noDims.y<<std::endl;
+            for (int m = 0; m < rgb->noDims.y; m++)
+            {
+                for (int n=0; n < rgb->noDims.x; n++)
+                {
+                    rgb_Mat.ptr<uchar>(m)[n*3+2]=rgb->GetElement(m*(rgb->noDims.x)+n,MEMORYDEVICE_CPU).r;
+                    rgb_Mat.ptr<uchar>(m)[n*3+1]=rgb->GetElement(m*(rgb->noDims.x)+n,MEMORYDEVICE_CPU).g;
+                    rgb_Mat.ptr<uchar>(m)[n*3]  =rgb->GetElement(m*(rgb->noDims.x)+n,MEMORYDEVICE_CPU).b;
+//                    std::cout<<"r"<<(int)rgb->GetElement(m*(rgb->noDims.x)+n,MEMORYDEVICE_CPU).r;
+//                    std::cout<<"g"<<(int)rgb->GetElement(m*(rgb->noDims.x)+n,MEMORYDEVICE_CPU).g;
+//                    std::cout<<"b"<<(int)rgb->GetElement(m*(rgb->noDims.x)+n,MEMORYDEVICE_CPU).b<<" ";
+                }
+//                std::cout<<std::endl;
+            }
+
+
         }
 
 
@@ -71,12 +88,17 @@ namespace ITMLib
 //            descriptor = cv::DescriptorExtractor::create("ORB");
 
 
-            //格式转换：ITMUChar4Image--->cv:Mat
-            cv::Mat rgb_prev_Mat;
+            //格式转换：ITMUChar4Image--->cv:Mat(int rows, int cols, int type);
+            cv::Mat rgb_prev_Mat(view->rgb_prev->noDims.y,view->rgb_prev->noDims.x,CV_8UC3);
             ITMUChar4Image_to_Mat(view->rgb_prev,rgb_prev_Mat);
-            cv::Mat rgb_Mat;
+            cv::Mat rgb_Mat(view->rgb->noDims.y,view->rgb->noDims.x,CV_8UC3);
             ITMUChar4Image_to_Mat(view->rgb,rgb_Mat);
 
+            // 显示转换结果Mat;
+            cv::namedWindow("rgb_prev", cv::WINDOW_AUTOSIZE);
+            cv::imshow("rgb_prev", rgb_prev_Mat);
+            cv::waitKey(0);
+            cv::destroyWindow("rgb_prev");
 
             // 提前关键点
             vector< cv::KeyPoint > kp_pre, kp_curr;

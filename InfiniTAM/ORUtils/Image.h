@@ -87,6 +87,7 @@ namespace ORUtils
 			std::swap(this->noDims, rhs.noDims);
 		}
 
+
 		// Suppress the default copy constructor and assignment operator
 		Image(const Image&); //
 		Image& operator=(const Image&);

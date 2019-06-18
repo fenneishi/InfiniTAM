@@ -419,10 +419,17 @@ namespace ORUtils {
 			return Vector3<T>(this->x, this->y, this->z);
 		}
 
+
+
+
 //		获得值，结果是一个普通数组
 		_CPU_AND_GPU_CODE_ const T *getValues() const { return this->v; }
-		_CPU_AND_GPU_CODE_ Vector4<T> &setValues(const T *rhs) { this->x = rhs[0]; this->y = rhs[1]; this->z = rhs[2]; this->w = rhs[3]; return *this; }
 
+
+
+
+
+		_CPU_AND_GPU_CODE_ Vector4<T> &setValues(const T *rhs) { this->x = rhs[0]; this->y = rhs[1]; this->z = rhs[2]; this->w = rhs[3]; return *this; }
 		// indexing operators
 		_CPU_AND_GPU_CODE_ T &operator [](int i) { return this->v[i]; }
 		_CPU_AND_GPU_CODE_ const T &operator [](int i) const { return this->v[i]; }

@@ -184,6 +184,15 @@ namespace ORUtils
 			}
 		}
 
+
+
+
+
+
+
+
+
+
 		/** Get an individual element of the memory block from either the CPU or GPU. */
 		T GetElement(int n, MemoryDeviceType memoryType) const
 		{
@@ -204,6 +213,15 @@ namespace ORUtils
 				default: throw std::runtime_error("Invalid memory type");
 			}
 		}
+
+
+
+
+
+
+
+
+
 
 		virtual ~MemoryBlock() { this->Free(); }
 

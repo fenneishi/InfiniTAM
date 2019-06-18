@@ -19,6 +19,10 @@
   <component name="ChangeListManager">
     <list default="true" id="23538b71-8f7b-4651-ad14-85fd50483de3" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" beforeDir="false" afterPath="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ORUtils/Image.h" beforeDir="false" afterPath="$PROJECT_DIR$/ORUtils/Image.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ORUtils/MemoryBlock.h" beforeDir="false" afterPath="$PROJECT_DIR$/ORUtils/MemoryBlock.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ORUtils/Vector.h" beforeDir="false" afterPath="$PROJECT_DIR$/ORUtils/Vector.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -45,10 +49,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="93">
-              <caret line="77" column="40" selection-start-line="77" selection-start-column="40" selection-end-line="77" selection-end-column="40" />
+            <state relative-caret-position="255">
+              <caret line="92" column="63" lean-forward="true" selection-start-line="92" selection-start-column="63" selection-end-line="92" selection-end-column="63" />
               <folding>
                 <element signature="e#104#124#0" expanded="true" />
+                <element signature="e#677#709#0" expanded="true" />
                 <element signature="e#934#969#0" expanded="true" />
               </folding>
             </state>
@@ -56,10 +61,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/include/opencv4/opencv2/core/mat.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="362">
+              <caret line="801" column="39" selection-start-line="801" selection-start-column="32" selection-end-line="801" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="28" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
+            <state relative-caret-position="237">
+              <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
+              <folding>
+                <element signature="e#104#137#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -67,8 +84,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ITMLib/Utils/ITMImageTypes.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="15" column="46" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="46" />
+            <state relative-caret-position="300">
+              <caret line="21" column="28" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -76,8 +93,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ITMLib/Utils/ITMMath.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
-              <caret line="38" column="38" selection-start-line="38" selection-start-column="38" selection-end-line="38" selection-end-column="38" />
+            <state relative-caret-position="260">
+              <caret line="38" column="28" selection-start-line="38" selection-start-column="28" selection-end-line="38" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -85,8 +102,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ORUtils/Vector.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="131">
-              <caret line="383" column="29" selection-start-line="383" selection-start-column="29" selection-end-line="383" selection-end-column="29" />
+            <state relative-caret-position="155">
+              <caret line="27" column="66" selection-start-line="27" selection-start-column="66" selection-end-line="27" selection-end-column="66" />
               <folding>
                 <element signature="e#415#424#0" expanded="true" />
                 <element signature="e#931#940#0" expanded="true" />
@@ -99,8 +116,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
+            <state relative-caret-position="640">
+              <caret line="84" column="9" selection-start-line="84" selection-start-column="9" selection-end-line="84" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -108,12 +125,24 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ORUtils/MemoryBlock.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
-              <caret line="187" column="37" selection-start-line="187" selection-start-column="37" selection-end-line="187" selection-end-column="37" />
+            <state relative-caret-position="319">
+              <caret line="196" column="18" selection-start-line="196" selection-start-column="10" selection-end-line="196" selection-end-column="20" />
               <folding>
+                <element signature="e#104#133#0" expanded="true" />
+                <element signature="e#218#242#0" expanded="true" />
+                <element signature="e#277#302#0" expanded="true" />
                 <element signature="e#732#755#0" expanded="true" />
                 <element signature="e#5423#5591#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ORUtils/MemoryDeviceType.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="135">
+              <caret line="9" column="18" selection-start-line="9" selection-start-column="2" selection-end-line="9" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -142,6 +171,7 @@
         <option value="$PROJECT_DIR$/ITMLib/Objects/Misc/ITMIMUCalibrator.h" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/ITMLib/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/ORUtils/MemoryBlock.h" />
         <option value="$PROJECT_DIR$/ORUtils/Image.h" />
         <option value="$PROJECT_DIR$/ORUtils/Vector.h" />
         <option value="$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h" />
@@ -174,13 +204,7 @@
             <path>
               <item name="InfiniTAM" type="b2602c69:ProjectViewProjectNode" />
               <item name="InfiniTAM" type="462c0819:PsiDirectoryNode" />
-              <item name="ITMLib" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="InfiniTAM" type="b2602c69:ProjectViewProjectNode" />
-              <item name="InfiniTAM" type="462c0819:PsiDirectoryNode" />
-              <item name="ITMLib" type="462c0819:PsiDirectoryNode" />
-              <item name="Core" type="462c0819:PsiDirectoryNode" />
+              <item name="ORUtils" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -282,19 +306,19 @@
       <workItem from="1560679495454" duration="24018000" />
       <workItem from="1560767454542" duration="2480000" />
       <workItem from="1560837142563" duration="1131000" />
-      <workItem from="1560838486909" duration="4912000" />
+      <workItem from="1560838486909" duration="9417000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="34497000" />
+    <option name="totallyTimeSpent" value="39002000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49415204" visible="true" weight="0.3118741" />
-      <window_info id="Structure" order="1" sideWeight="0.50584793" side_tool="true" visible="true" weight="0.3118741" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49518073" visible="true" weight="0.030042918" />
+      <window_info id="Structure" order="1" sideWeight="0.5048193" side_tool="true" weight="0.021459227" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
@@ -308,20 +332,20 @@
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="bottom" id="CMake" order="11" weight="0.09518072" />
-      <window_info active="true" anchor="bottom" id="Messages" order="12" visible="true" weight="0.17590362" />
+      <window_info anchor="bottom" id="Messages" order="12" weight="0.17590362" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.021459227" />
       <window_info anchor="right" id="Database" order="3" />
     </layout>
     <layout-to-restore>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21816881" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49518073" visible="true" weight="0.021459227" />
+      <window_info id="Structure" order="1" sideWeight="0.5048193" side_tool="true" visible="true" weight="0.021459227" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.036144577" />
-      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.036144577" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.036144577" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -329,8 +353,8 @@
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="10" />
-      <window_info anchor="bottom" id="CMake" order="11" />
-      <window_info anchor="bottom" id="Messages" order="12" weight="0.34698796" />
+      <window_info anchor="bottom" id="CMake" order="11" weight="0.09518072" />
+      <window_info anchor="bottom" id="Messages" order="12" weight="0.17590362" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.021459227" />
@@ -577,23 +601,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ORUtils/MemoryDeviceType.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="5" selection-start-line="7" selection-start-column="5" selection-end-line="7" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMMultiEngine.tpp">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file:///usr/local/include/opencv4/opencv2/core/mat.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-18638">
-          <caret line="787" column="17" selection-start-line="787" selection-start-column="17" selection-end-line="787" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/include/opencv4/opencv2/core/base.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="258">
@@ -615,35 +622,62 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="237">
+          <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
+          <folding>
+            <element signature="e#104#137#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ORUtils/MemoryDeviceType.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="18" selection-start-line="9" selection-start-column="2" selection-end-line="9" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ORUtils/MemoryBlock.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="187" column="37" selection-start-line="187" selection-start-column="37" selection-end-line="187" selection-end-column="37" />
+        <state relative-caret-position="319">
+          <caret line="196" column="18" selection-start-line="196" selection-start-column="10" selection-end-line="196" selection-end-column="20" />
           <folding>
+            <element signature="e#104#133#0" expanded="true" />
+            <element signature="e#218#242#0" expanded="true" />
+            <element signature="e#277#302#0" expanded="true" />
             <element signature="e#732#755#0" expanded="true" />
             <element signature="e#5423#5591#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
+    <entry file="file://$PROJECT_DIR$/ITMLib/Utils/ITMImageTypes.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="15" column="31" selection-start-line="15" selection-start-column="31" selection-end-line="15" selection-end-column="31" />
+        <state relative-caret-position="300">
+          <caret line="21" column="28" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Utils/ITMMath.h">
+    <entry file="file://$PROJECT_DIR$/ORUtils/Image.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="38" column="38" selection-start-line="38" selection-start-column="38" selection-end-line="38" selection-end-column="38" />
+        <state relative-caret-position="640">
+          <caret line="84" column="9" selection-start-line="84" selection-start-column="9" selection-end-line="84" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/include/opencv4/opencv2/core/mat.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="362">
+          <caret line="801" column="39" selection-start-line="801" selection-start-column="32" selection-end-line="801" selection-end-column="39" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ORUtils/Vector.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="131">
-          <caret line="383" column="29" selection-start-line="383" selection-start-column="29" selection-end-line="383" selection-end-column="29" />
+        <state relative-caret-position="155">
+          <caret line="27" column="66" selection-start-line="27" selection-start-column="66" selection-end-line="27" selection-end-column="66" />
           <folding>
             <element signature="e#415#424#0" expanded="true" />
             <element signature="e#931#940#0" expanded="true" />
@@ -652,26 +686,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Utils/ITMImageTypes.h">
+    <entry file="file://$PROJECT_DIR$/ITMLib/Utils/ITMMath.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="15" column="46" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="46" />
+        <state relative-caret-position="260">
+          <caret line="38" column="28" selection-start-line="38" selection-start-column="28" selection-end-line="38" selection-end-column="28" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ITMLib/Objects/Views/ITMView.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="28" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMMultiEngine.tpp">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/ITMLib/Core/ITMTrackingController.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="93">
-          <caret line="77" column="40" selection-start-line="77" selection-start-column="40" selection-end-line="77" selection-end-column="40" />
+        <state relative-caret-position="255">
+          <caret line="92" column="63" lean-forward="true" selection-start-line="92" selection-start-column="63" selection-end-line="92" selection-end-column="63" />
           <folding>
             <element signature="e#104#124#0" expanded="true" />
+            <element signature="e#677#709#0" expanded="true" />
             <element signature="e#934#969#0" expanded="true" />
           </folding>
         </state>
