@@ -615,3 +615,11 @@ SOURCE_GROUP(Utils FILES ${ITMLIB_UTILS_SOURCES} ${ITMLIB_UTILS_HEADERS})
 ##########################################
 
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/SetCUDALibTarget.cmake)
+
+TARGET_LINK_LIBRARIES(${targetname} ${PCL_LIBS} ${OpenCV_LIBS})
+
+
+
+
+
+

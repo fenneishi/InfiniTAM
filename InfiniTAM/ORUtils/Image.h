@@ -16,7 +16,7 @@ namespace ORUtils
 	class Image : private MemoryBlock<T>
 	{
 	public:
-	    bool NoReSet; //构造函数调用时候，将这个值置为ture,如果调用了setFrom(..)接口进行了重置，那么这个值就从true变成了false;
+	    bool NoReSet; //龙：构造函数调用时候，将这个值置为ture,如果调用了setFrom(..)接口进行了重置，那么这个值就从true变成了false;
 		/** Expose public MemoryBlock<T> member variables. */
 		using MemoryBlock<T>::dataSize;
 

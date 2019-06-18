@@ -31,9 +31,10 @@ namespace ORUtils {
 		};
 	};
 
+	// Vector4是个内部类型，可被用为齐次坐标，rgb通道等等，看你怎么用了
 	template <class T> struct Vector4_ {
 		union {
-			struct { T x, y, z, w; }; // standard names for components
+			struct { T x, y, z, w; }; // standard names for components w为1时，即为齐次项目
 			struct { T r, g, b, a; }; // standard names for components
 			struct { T s, t, p, q; }; // standard names for components
 			T v[4];
@@ -409,6 +410,7 @@ namespace ORUtils {
 			return Vector4<float>((float)this->x, (float)this->y, (float)this->z, (float)this->w);
 		}
 
+//		齐次坐标正常化
 		_CPU_AND_GPU_CODE_ inline Vector4<T> homogeneousCoordinatesNormalize() const {
 			return (this->w <= 0) ? *this : Vector4<T>(this->x / this->w, this->y / this->w, this->z / this->w, 1);
 		}
@@ -417,6 +419,7 @@ namespace ORUtils {
 			return Vector3<T>(this->x, this->y, this->z);
 		}
 
+//		获得值，结果是一个普通数组
 		_CPU_AND_GPU_CODE_ const T *getValues() const { return this->v; }
 		_CPU_AND_GPU_CODE_ Vector4<T> &setValues(const T *rhs) { this->x = rhs[0]; this->y = rhs[1]; this->z = rhs[2]; this->w = rhs[3]; return *this; }
 
