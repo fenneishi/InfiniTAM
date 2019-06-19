@@ -91,19 +91,73 @@ namespace ITMLib
             //格式转换：ITMUChar4Image--->cv:Mat(int rows, int cols, int type);
             cv::Mat rgb_prev_Mat(view->rgb_prev->noDims.y,view->rgb_prev->noDims.x,CV_8UC3);
             ITMUChar4Image_to_Mat(view->rgb_prev,rgb_prev_Mat);
-            cv::Mat rgb_Mat(view->rgb->noDims.y,view->rgb->noDims.x,CV_8UC3);
-            ITMUChar4Image_to_Mat(view->rgb,rgb_Mat);
+            cv::Mat rgb_curr_Mat(view->rgb->noDims.y,view->rgb->noDims.x,CV_8UC3);
+            ITMUChar4Image_to_Mat(view->rgb,rgb_curr_Mat);
 
-            // 显示转换结果Mat;
+            // 显示转换结果rgb_prev_Mat;
             cv::namedWindow("rgb_prev", cv::WINDOW_AUTOSIZE);
             cv::imshow("rgb_prev", rgb_prev_Mat);
             cv::waitKey(0);
             cv::destroyWindow("rgb_prev");
 
-            // 提前关键点
+            // 提取关键点
             vector< cv::KeyPoint > kp_pre, kp_curr;
-//            detector->detect( rgb_prev_Mat, kp_pre );
-//            detector->detect( rgb_Mat, kp_curr );
+            detector->detect( rgb_prev_Mat, kp_pre );
+            detector->detect( rgb_curr_Mat, kp_curr );
+
+            // 计算描述子
+            cv::Mat desp_pre, desp_curr;
+            descriptor->compute( rgb_prev_Mat, kp_pre, desp_pre );
+            descriptor->compute( rgb_curr_Mat, kp_curr, desp_curr );
+
+            // 匹配描述子
+            vector< cv::DMatch > matches;
+            cv::FlannBasedMatcher matcher;
+            // https://stackoverflow.com/questions/11565255/opencv-flann-with-orb-descriptors?answertab=votes#tab-top
+            if(desp_pre.type()!=CV_32F) {
+                desp_pre.convertTo(desp_pre, CV_32F);
+            }
+            if(desp_curr.type()!=CV_32F) {
+                desp_curr.convertTo(desp_curr, CV_32F);
+            }
+            if(desp_pre.empty()||desp_curr.empty())
+            {
+                std::cout<<"descriptor empty"<<std::endl;
+            } else
+            {
+                matcher.match( desp_pre, desp_curr, matches );
+            }
+            cout<<"Find total "<<matches.size()<<" matches."<<endl;
+
+            // 可视化：显示匹配的特征
+            cv::Mat imgMatches;
+            cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, matches, imgMatches );
+            cv::imshow( "matches", imgMatches );
+            cv::imwrite( "../../matches.png", imgMatches );
+            cv::waitKey( 0 );
+
+            // 筛选匹配，把距离太大的去掉
+            // 这里使用的准则是去掉大于四倍最小距离的匹配
+            vector< cv::DMatch > goodMatches;
+            double minDis = 9999;
+            for ( size_t i=0; i<matches.size(); i++ )
+            {
+                if ( matches[i].distance < minDis )
+                    minDis = matches[i].distance;
+            }
+            for ( size_t i=0; i<matches.size(); i++ )
+            {
+                if (matches[i].distance < 2*minDis)
+                    goodMatches.push_back( matches[i] );
+            }
+
+            // 可视化：显示筛选后的结果。
+            cout<<"good matches="<<goodMatches.size()<<endl;
+
+            cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, goodMatches, imgMatches );
+            cv::imshow( "goodmatches", imgMatches );
+            cv::imwrite( "../../goodmatches.png", imgMatches );
+            cv::waitKey( 0 );
 
         }
 
@@ -115,7 +169,11 @@ namespace ITMLib
 		void Track(ITMTrackingState *trackingState, const ITMView *view)
 		{
 			std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
-            VO_initialize(trackingState,view);
+			if(view->rgb_prev->NoReSet==0)
+            {
+			    VO_initialize(trackingState,view);
+            }
+
 		    tracker->TrackCamera(trackingState, view);
 		}
 
