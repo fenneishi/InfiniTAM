@@ -4,8 +4,11 @@
 *.sdf
 *.suo
 *.swp
+.vscode/
 .DS_Store
 x64/
+/InfiniTAM/cmake-build-debug/
+/InfiniTAM/.vscode/
 /InfiniTAM/build/
 /InfiniTAM/buildx/
 /InfiniTAM/freeglut/
