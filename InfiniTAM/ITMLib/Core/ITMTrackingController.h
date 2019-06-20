@@ -158,7 +158,7 @@ namespace ITMLib
         int align(cv::KeyPoint &kp,const Eigen::Matrix3d &camera_matrix_depth,const Eigen::Matrix3d  &camera_matrix_rgb,const Eigen::Matrix3d  &depth_to_rgb)
         {
 //          rgb参考系：齐次化(u,v)-->(u,v,1)
-            Eigen::Vector3d KeyPoint;
+            Eigen::Vector3d keypoint;
             keypoint<<kp.pt.x,kp.pt.y,1;
 //          rgb参考系:归一化坐标
             keypoint=camera_matrix_rgb.inverse()*keypoint;
@@ -182,8 +182,8 @@ namespace ITMLib
             // 深度相机内参
             float fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
             float fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_d.projectionParamsSimple.cx;
-            float cy=view->calib.intrinsics_d.projectionParamsSimple.cy;
+            float cx=view->calib.intrinsics_d.projectionParamsSimple.px;
+            float cy=view->calib.intrinsics_d.projectionParamsSimple.py;
             Eigen::Matrix3d camera_matrix_depth;
             camera_matrix_depth<<
             fx,  0,   cx,
@@ -192,10 +192,10 @@ namespace ITMLib
 
 
             // 彩色相机内参
-            float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
-            float fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_rgb.projectionParamsSimple.cx;
-            float cy=view->calib.intrinsics_rgb.projectionParamsSimple.cy;
+            fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
+            fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
+            cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
+            cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
             Eigen::Matrix3d  camera_matrix_rgb;
             camera_matrix_rgb <<
             fx,  0,   cx,
@@ -204,7 +204,7 @@ namespace ITMLib
 
 
             //  彩色相机_深度相机转换矩阵的逆
-            Matrix4f calib_inv=calib.trafo_rgb_to_depth.calib_inv;
+            Matrix4f calib_inv=view->calib.trafo_rgb_to_depth.calib_inv;
             Eigen::Matrix3d  depth_to_rgb;
             depth_to_rgb<<
             calib_inv(0,0), calib_inv(0,1),calib_inv(0,2),calib_inv(0,3),
@@ -217,7 +217,7 @@ namespace ITMLib
             for (size_t i=0; i<gooMatches.size(); i++)
             {
                 align(kps_pre[gooMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb);
-                align(kps_curr[goodMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb)
+                align(kps_curr[gooMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb)
             }
 
             return 0;
@@ -377,8 +377,8 @@ namespace ITMLib
             cout<<"R="<<rvec<<endl;
             cout<<"t="<<tvec<<endl;
 
-            // 修改trackingState
-            changetrackingState_long(trackingState,rvec,tvec);
+            // 修改trackingState SetFrom
+            trackingState->pose_d->SetFrom(tvec.at(0,0),tvec.at(0,1),tvec.at(0,2),rvecat(0,0),rvecat(0,1),rvecat(0,2));
 
         }
 
