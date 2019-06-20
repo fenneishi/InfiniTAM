@@ -25,7 +25,7 @@ namespace ITMLib
 		/// RGB colour image for the previous frame. 前一帧的彩色图
 		ITMUChar4Image *rgb_prev; 
 
-		/// Float valued depth image, if available according to @ref inputImageType.浮点类型的深度图，根据inputImageType来确定是否可用
+		/// Float valued depth image, if available according to @ref inputImageType.浮点类型的深度图，根据inputImageType来确定是否可用 我觉得在track阶段一定是对对齐好的，就不知道用的是rgb和depth谁的内参。
 		ITMFloatImage *depth;
 
 		/// surface normal of depth image 深度图的表面法向量图
@@ -36,7 +36,7 @@ namespace ITMLib
 		/// allocated when needed 需要时再分配
 		ITMFloatImage *depthUncertainty;
 
-		// confidence based on distance from center  depth置信度（根据距离光心得距离）
+		/// confidence based on distance from center  depth置信度（根据距离光心得距离）
 		ITMFloatImage *depthConfidence;
 
 		ITMView(const ITMRGBDCalib& calibration, Vector2i imgSize_rgb, Vector2i imgSize_d, bool useGPU)

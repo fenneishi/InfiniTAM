@@ -30,7 +30,7 @@ namespace ITMLib
 		*/
 		ITMExtrinsics trafo_rgb_to_depth;
 		
-		/// Calibration information to compute depth from disparity images.
+		/// Calibration information to compute depth from disparity images. 从视差图中计算深度所需参数
 		ITMDisparityCalib disparityCalib;
 	};
 }

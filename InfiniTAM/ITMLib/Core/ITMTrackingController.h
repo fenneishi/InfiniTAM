@@ -55,7 +55,6 @@ namespace ITMLib
 		ITMTracker *tracker;
 	public:
 
-
         void ITMUChar4Image_to_Mat(const ITMUChar4Image *rgb,cv::Mat &rgb_Mat)
         {
             std::cout<<"size.x:"<<rgb->noDims.x<<",size.y:"<<rgb->noDims.y<<std::endl;
@@ -72,10 +71,93 @@ namespace ITMLib
                 }
 //                std::cout<<std::endl;
             }
+        }
 
+        void ITMFloatImage_to_Mat(const ITMFloatImage *depth,cv::Mat &depth_Mat)
+        {
+            for (int m = 0; m < depth->noDims.y; m++)
+            {
+                for (int n = 0; n < depth->noDims.x; n++) {
+                    depth_Mat.ptr<float>(m)[n] = depth->GetElement(m * (depth->noDims.x) + n, MEMORYDEVICE_CPU);
+                }
+            }
+        }
+
+        int RANSAC_long(vector< cv::KeyPoint > &kp_pre,vector< cv::KeyPoint > &kp_cur,vector< cv::DMatch > &goodMatches,const cv::Mat &rgb_prev_Mat,const cv::Mat &rgb_curr_Mat)
+        {
+
+            vector<cv::DMatch> m_Matches;
+            m_Matches = goodMatches;
+            int ptCount = goodMatches.size();
+            if (ptCount < 100)
+            {
+                cout << "Don't find enough match points" << endl;
+                return 0;
+            }
+
+            //坐标转换为float类型
+            vector <cv::KeyPoint> RAN_KP1, RAN_KP2;
+            //size_t是标准C库中定义的，应为unsigned int，在64位系统中为long unsigned int,在C++中为了适应不同的平台，增加可移植性。
+            for (size_t i = 0; i < m_Matches.size(); i++)
+            {
+                RAN_KP1.push_back(kp_pre[goodMatches[i].queryIdx]);
+                RAN_KP2.push_back(kp_cur[goodMatches[i].trainIdx]);
+                //RAN_KP1是要存储img01中能与img02匹配的点
+                //goodMatches存储了这些匹配点对的img01和img02的索引值
+            }
+            //坐标变换
+            vector <cv::Point2f> p01, p02;
+            for (size_t i = 0; i < m_Matches.size(); i++)
+            {
+                p01.push_back(RAN_KP1[i].pt);
+                p02.push_back(RAN_KP2[i].pt);
+            }
+            /*vector <Point2f> img1_corners(4);
+            img1_corners[0] = Point(0,0);
+            img1_corners[1] = Point(img_1.cols,0);
+            img1_corners[2] = Point(img_1.cols, img_1.rows);
+            img1_corners[3] = Point(0, img_1.rows);
+            vector <Point2f> img2_corners(4);*/
+            ////求转换矩阵
+            //Mat m_homography;
+            //vector<uchar> m;
+            //m_homography = findHomography(p01, p02, RANSAC);//寻找匹配图像
+            //求基础矩阵 Fundamental,3*3的基础矩阵
+            vector<uchar> RansacStatus;
+            cv::Mat Fundamental = findFundamentalMat(p01, p02, RansacStatus, cv::FM_RANSAC);
+            //重新定义关键点RR_KP和RR_matches来存储新的关键点和基础矩阵，通过RansacStatus来删除误匹配点
+//            vector <cv::KeyPoint> RR_KP1, RR_KP2;
+            kp_pre.clear();
+            kp_cur.clear();
+//            vector <cv::DMatch> RR_matches;
+            goodMatches.clear();
+            int index = 0;
+            for (size_t i = 0; i < m_Matches.size(); i++)
+            {
+                if (RansacStatus[i] != 0)
+                {
+                    kp_pre.push_back(RAN_KP1[i]);
+                    kp_cur.push_back(RAN_KP2[i]);
+                    m_Matches[i].queryIdx = index;
+                    m_Matches[i].trainIdx = index;
+                    goodMatches.push_back(m_Matches[i]);
+                    index++;
+                }
+            }
+            cout << "RANSAC后匹配点数" <<goodMatches.size()<< endl;
+            cv::Mat img_RR_matches;
+            drawMatches(rgb_prev_Mat, kp_pre, rgb_curr_Mat,kp_cur, goodMatches, img_RR_matches);
+            imshow("After RANSAC",img_RR_matches);
+            cv::imwrite( "../../goodmatche_RANSAC.png", img_RR_matches);
+            //等待任意按键按下
+            cv::waitKey(0);
 
         }
 
+        int changetrackingState_long(ITMTrackingState *trackingState,const cv::Mat &rvec,const cv::Mat &tvec)
+        {
+            return 0;
+        }
 
 	    void VO_initialize(ITMTrackingState *trackingState, const ITMView *view)
         {
@@ -84,8 +166,19 @@ namespace ITMLib
             cv::Ptr<cv::DescriptorExtractor> descriptor;
             detector = cv::ORB::create();
             descriptor = cv::ORB::create();
+
+//            detector = cv::AgastFeatureDetector::create();
+//            descriptor = cv::AgastFeatureDetector::create();
+
+//            detector = cv::FastFeatureDetector::create();
+//            descriptor = cv::FastFeatureDetector::create();
+
+
 //            detector = cv::FeatureDetector::create("ROB");
 //            descriptor = cv::DescriptorExtractor::create("ORB");
+
+
+
 
 
             //格式转换：ITMUChar4Image--->cv:Mat(int rows, int cols, int type);
@@ -136,8 +229,7 @@ namespace ITMLib
             cv::imwrite( "../../matches.png", imgMatches );
             cv::waitKey( 0 );
 
-            // 筛选匹配，把距离太大的去掉
-            // 这里使用的准则是去掉大于四倍最小距离的匹配
+            // 筛选匹配，把距离太大的去掉:这里使用的准则是去掉大于四倍(1.5)最小距离的匹配
             vector< cv::DMatch > goodMatches;
             double minDis = 9999;
             for ( size_t i=0; i<matches.size(); i++ )
@@ -147,17 +239,68 @@ namespace ITMLib
             }
             for ( size_t i=0; i<matches.size(); i++ )
             {
-                if (matches[i].distance < 2*minDis)
+                if (matches[i].distance < 4*minDis)
                     goodMatches.push_back( matches[i] );
             }
-
-            // 可视化：显示筛选后的结果。
             cout<<"good matches="<<goodMatches.size()<<endl;
 
+            // 可视化：显示筛选后的匹配结果。
             cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, goodMatches, imgMatches );
             cv::imshow( "goodmatches", imgMatches );
             cv::imwrite( "../../goodmatches.png", imgMatches );
             cv::waitKey( 0 );
+
+
+            // RANSAC滤波
+            RANSAC_long(kp_pre,kp_curr,goodMatches,rgb_prev_Mat,rgb_curr_Mat);
+
+//            // 第一帧的深度图（格式cv::mat)
+//            cv::Mat depth_pre_Mat(view->depth->noDims.y,view->depth->noDims.x,CV_32FC1);
+//
+//            // 将第一帧深度图与rgb对齐(假设已经对齐好了)
+//
+//
+//            // pnp准备---成功匹配的3D-2D关键点对
+//            vector<cv::Point3f> pts_obj; // 第一个帧的三维点
+//            vector<cv::Point2f> pts_img;// 第二个帧的图像点
+//            for (size_t i=0; i<goodMatches.size(); i++)
+//            {
+//                // 向pts_obj里添加点
+//                cv::Point2f p = kp_pre[goodMatches[i].queryIdx].pt;// query 是第一个, train 是第二个
+//                ushort d = depth_pre_Mat.ptr<ushort>( int(p.y) )[ int(p.x) ];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
+//                if (d == 0) continue; // d==0的点不参与pnp优化。
+//                cv::Point3f pt ( p.x, p.y, d );
+//                cv::Point3f pd = point2dTo3d(pt);// 将(u,v,d)转成(x,y,z)
+//                pts_obj.push_back( pd );
+//                // 向pts_img里添加点
+//                pts_img.push_back( cv::Point2f( kp2[goodMatches[i].trainIdx].pt ) );
+//            }
+//
+//            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
+//
+//
+//
+//            // pnp准备——相机矩阵
+//            double camera_matrix_data[3][3] = {
+//                    {C.fx,  0,     C.cx},
+//                    {0,     C.fy,  C.cy},
+//                    {0,     0,     1}
+//            };
+//            cv::Mat cameraMatrix( 3, 3, CV_64F, camera_matrix_data );
+//
+//
+//
+//            // pnp求解
+//            cv::Mat rvec, tvec, inliersPNP;
+//            cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 100, inliersPNP);
+//
+//            // pnp结果
+//            cout<<"inliers: "<<inliersPNP.rows<<endl;
+//            cout<<"R="<<rvec<<endl;
+//            cout<<"t="<<tvec<<endl;
+//
+//            // 修改trackingState
+//            changetrackingState_long(trackingState,rvec,tvec);
 
         }
 

@@ -11,8 +11,14 @@ using namespace ORUtils;
 ITMViewBuilder_CPU::ITMViewBuilder_CPU(const ITMRGBDCalib& calib):ITMViewBuilder(calib) { }
 ITMViewBuilder_CPU::~ITMViewBuilder_CPU(void) { }
 
+//rgbImage彩色图
+//rawDepthImage未加工的深度图
+//useBilateralFilter 使用useBilateralFilter滤波
+//modelSensorNoise是否有模型传感器噪音
+//storePreviousImage是否存储前一帧
 void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, bool useBilateralFilter, bool modelSensorNoise, bool storePreviousImage)
-{ 
+{
+    // 建立view对象(并及时填充空的depthNormal，depthUncertainty，因为view的其他成员都会在构造时候自动建立
 	if (*view_ptr == NULL)
 	{
 		*view_ptr = new ITMView(calib, rgbImage->noDims, rawDepthImage->noDims, false);
@@ -27,18 +33,31 @@ void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage
 			(*view_ptr)->depthUncertainty = new ITMFloatImage(rawDepthImage->noDims, true, false);
 		}
 	}
+
+	// 临时的view
 	ITMView *view = *view_ptr;
 
+	// 如果要存储前一帧，就给这个临时的view添加上前一帧
 	if (storePreviousImage)
 	{
 		if (!view->rgb_prev) view->rgb_prev = new ITMUChar4Image(rgbImage->noDims, true, false);
 		else view->rgb_prev->SetFrom(view->rgb, MemoryBlock<Vector4u>::CPU_TO_CPU);
 	}
 
+
+    //	用rbgImage去建立view->rbg对象
 	view->rgb->SetFrom(rgbImage, MemoryBlock<Vector4u>::CPU_TO_CPU);
+	//  用rawDepthImage(未加工的深度图像)去建立shortImage
 	this->shortImage->SetFrom(rawDepthImage, MemoryBlock<short>::CPU_TO_CPU);
 
-	switch (view->calib.disparityCalib.GetType())
+
+//	注意，现在有三股势力:
+//	1是view_ptr，是传参进来的核心要建立的view.
+//	2是本地的shortImage，floatImage，用于存放未加工的rawDepthImage和某种加工过后的DepthImage，是过渡性角色。
+//	3是新建的局部view，也应该是临时性角色。
+
+
+	switch (view->calib.disparityCalib.GetType()) //
 	{
 	case ITMDisparityCalib::TRAFO_KINECT:
 		this->ConvertDisparityToDepth(view->depth, this->shortImage, &(view->calib.intrinsics_d), view->calib.disparityCalib.GetParams());
@@ -47,7 +66,7 @@ void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage
 		this->ConvertDepthAffineToFloat(view->depth, this->shortImage, view->calib.disparityCalib.GetParams());
 		break;
 	default:
-		break;
+		break; //如果不是视差图（双目视差）就不用接受上述洗礼
 	}
 
 	if (useBilateralFilter)
@@ -58,15 +77,19 @@ void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage
 		this->DepthFiltering(this->floatImage, view->depth);
 		this->DepthFiltering(view->depth, this->floatImage);
 		this->DepthFiltering(this->floatImage, view->depth);
-		view->depth->SetFrom(this->floatImage, MemoryBlock<float>::CPU_TO_CPU);
+		view->depth->SetFrom(this->floatImage, MemoryBlock<float>::CPU_TO_CPU);//经受bilateral滤波洗礼之后，就可以做view->depth的SetFrom了
 	}
 
+    //	感觉这里有个2个bug,1是如果useBilateralFilter==false,那么就没有set"view->depth"了，2是难道modelSensorNoise==false,就不设置法向量了吗？
+
+    //	如果要考虑深度传感器噪音的话，就设置一下view->depthNormal,view->depthUncertainty
 	if (modelSensorNoise)
 	{
 		this->ComputeNormalAndWeights(view->depthNormal, view->depthUncertainty, view->depth, view->calib.intrinsics_d.projectionParamsSimple.all);
 	}
 }
 
+//这个是有IMU的情况
 void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage, ITMShortImage *depthImage, bool useBilateralFilter, ITMIMUMeasurement *imuMeasurement, bool modelSensorNoise, bool storePreviousImage)
 {
 	if (*view_ptr == NULL)
@@ -90,6 +113,8 @@ void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage
 	this->UpdateView(view_ptr, rgbImage, depthImage, useBilateralFilter, modelSensorNoise, storePreviousImage);
 }
 
+
+//视差图-->深度图
 void ITMViewBuilder_CPU::ConvertDisparityToDepth(ITMFloatImage *depth_out, const ITMShortImage *depth_in, const ITMIntrinsics *depthIntrinsics,
 	Vector2f disparityCalibParams)
 {
@@ -104,6 +129,7 @@ void ITMViewBuilder_CPU::ConvertDisparityToDepth(ITMFloatImage *depth_out, const
 		convertDisparityToDepth(d_out, x, y, d_in, disparityCalibParams, fx_depth, imgSize);
 }
 
+//视差图-->深度图
 void ITMViewBuilder_CPU::ConvertDepthAffineToFloat(ITMFloatImage *depth_out, const ITMShortImage *depth_in, const Vector2f depthCalibParams)
 {
 	Vector2i imgSize = depth_in->noDims;
@@ -115,6 +141,8 @@ void ITMViewBuilder_CPU::ConvertDepthAffineToFloat(ITMFloatImage *depth_out, con
 		convertDepthAffineToFloat(d_out, x, y, d_in, imgSize, depthCalibParams);
 }
 
+
+//深度图的BilateralFilter
 void ITMViewBuilder_CPU::DepthFiltering(ITMFloatImage *image_out, const ITMFloatImage *image_in)
 {
 	Vector2i imgSize = image_in->noDims;
@@ -127,6 +155,7 @@ void ITMViewBuilder_CPU::DepthFiltering(ITMFloatImage *image_out, const ITMFloat
 	for (int y = 2; y < imgSize.y - 2; y++) for (int x = 2; x < imgSize.x - 2; x++)
 		filterDepth(imout, imin, x, y, imgSize);
 }
+
 
 void ITMViewBuilder_CPU::ComputeNormalAndWeights(ITMFloat4Image *normal_out, ITMFloatImage *sigmaZ_out, const ITMFloatImage *depth_in, Vector4f intrinsic)
 {
