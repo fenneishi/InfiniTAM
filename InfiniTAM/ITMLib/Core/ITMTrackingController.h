@@ -19,8 +19,8 @@ VO所需的头文件*/
 using namespace std;
 
 // Eigen
-//#include <Eigen/Core>
-//#include <Eigen/Geometry>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 // OpenCV
 #include <opencv2/core/core.hpp>
@@ -37,6 +37,7 @@ using namespace std;
 
 #include "../Utils/ITMImageTypes.h"
 #include "../../ORUtils/MemoryDeviceType.h" // 调用T GetElement(int n, MemoryDeviceType memoryType)接口所需。
+#include "../../Utils/ITMMath.h"
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -154,31 +155,84 @@ namespace ITMLib
 
         }
 
-        int changetrackingState_long(ITMTrackingState *trackingState,const cv::Mat &rvec,const cv::Mat &tvec)
+        int align(cv::KeyPoint &kp,const Eigen::Matrix3d &camera_matrix_depth,const Eigen::Matrix3d  &camera_matrix_rgb,const Eigen::Matrix3d  &depth_to_rgb)
         {
+//          rgb参考系：齐次化(u,v)-->(u,v,1)
+            Eigen::Vector3d KeyPoint;
+            keypoint<<kp.pt.x,kp.pt.y,1;
+//          rgb参考系:归一化坐标
+            keypoint=camera_matrix_rgb.inverse()*keypoint;
+//          depth参考系:归一化坐标
+            keypoint=depth_to_rgb*keypoint;
+//          depth参考系:齐次坐标
+            keypoint=camera_matrix_depth*keypoint;
+            keypoint<<keypoint[0]/keypoint[2],keypoint[1]/keypoint[2],1;
+//          depth参考系:像素坐标
+            kp.pt.x=keypoint[0];
+            kp.pt.y=keypoint[1];
+
+            return 0;
+
+        }
+
+        // 彩色图对齐到深度图(仅特征点）
+        int rgb_align_to_depth(const ITMView *view,vector< cv::DMatch > &gooMatches,  vector< cv::KeyPoint > &kps_pre,vector< cv::KeyPoint > &kps_curr )
+        {
+
+            // 深度相机内参
+            float fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
+            float fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
+            float cx=view->calib.intrinsics_d.projectionParamsSimple.cx;
+            float cy=view->calib.intrinsics_d.projectionParamsSimple.cy;
+            Eigen::Matrix3d camera_matrix_depth;
+            camera_matrix_depth<<
+            fx,  0,   cx,
+            0,   fy,  cy,
+            0,   0,   1 ;
+
+
+            // 彩色相机内参
+            float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
+            float fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
+            float cx=view->calib.intrinsics_rgb.projectionParamsSimple.cx;
+            float cy=view->calib.intrinsics_rgb.projectionParamsSimple.cy;
+            Eigen::Matrix3d  camera_matrix_rgb;
+            camera_matrix_rgb <<
+            fx,  0,   cx,
+            0,   fy,  cy,
+            0,   0,   1 ;
+
+
+            //  彩色相机_深度相机转换矩阵的逆
+            Matrix4f calib_inv=calib.trafo_rgb_to_depth.calib_inv;
+            Eigen::Matrix3d  depth_to_rgb;
+            depth_to_rgb<<
+            calib_inv(0,0), calib_inv(0,1),calib_inv(0,2),calib_inv(0,3),
+            calib_inv(1,0), calib_inv(1,1),calib_inv(0,2),calib_inv(0,3),
+            calib_inv(2,0), calib_inv(2,1),calib_inv(2,2),calib_inv(2,3),
+            calib_inv(3,0), calib_inv(3,1),calib_inv(3,2),calib_inv(3,3);
+
+
+
+            for (size_t i=0; i<gooMatches.size(); i++)
+            {
+                align(kps_pre[gooMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb);
+                align(kps_curr[goodMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb)
+            }
+
             return 0;
         }
 
-	    void VO_initialize(ITMTrackingState *trackingState, const ITMView *view)
+
+        void VO_initialize(ITMTrackingState *trackingState, const ITMView *view)
         {
             // 建立特征提取器与描述子提取器(ORB)
             cv::Ptr<cv::FeatureDetector> detector;
             cv::Ptr<cv::DescriptorExtractor> descriptor;
             detector = cv::ORB::create();
             descriptor = cv::ORB::create();
-
-//            detector = cv::AgastFeatureDetector::create();
-//            descriptor = cv::AgastFeatureDetector::create();
-
-//            detector = cv::FastFeatureDetector::create();
-//            descriptor = cv::FastFeatureDetector::create();
-
-
-//            detector = cv::FeatureDetector::create("ROB");
-//            descriptor = cv::DescriptorExtractor::create("ORB");
-
-
-
+//          detector = cv::FeatureDetector::create("ROB");
+//          descriptor = cv::DescriptorExtractor::create("ORB");
 
 
             //格式转换：ITMUChar4Image--->cv:Mat(int rows, int cols, int type);
@@ -254,53 +308,77 @@ namespace ITMLib
             // RANSAC滤波
             RANSAC_long(kp_pre,kp_curr,goodMatches,rgb_prev_Mat,rgb_curr_Mat);
 
-//            // 第一帧的深度图（格式cv::mat)
-//            cv::Mat depth_pre_Mat(view->depth->noDims.y,view->depth->noDims.x,CV_32FC1);
-//
-//            // 将第一帧深度图与rgb对齐(假设已经对齐好了)
-//
-//
-//            // pnp准备---成功匹配的3D-2D关键点对
-//            vector<cv::Point3f> pts_obj; // 第一个帧的三维点
-//            vector<cv::Point2f> pts_img;// 第二个帧的图像点
-//            for (size_t i=0; i<goodMatches.size(); i++)
-//            {
-//                // 向pts_obj里添加点
-//                cv::Point2f p = kp_pre[goodMatches[i].queryIdx].pt;// query 是第一个, train 是第二个
-//                ushort d = depth_pre_Mat.ptr<ushort>( int(p.y) )[ int(p.x) ];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
-//                if (d == 0) continue; // d==0的点不参与pnp优化。
-//                cv::Point3f pt ( p.x, p.y, d );
-//                cv::Point3f pd = point2dTo3d(pt);// 将(u,v,d)转成(x,y,z)
-//                pts_obj.push_back( pd );
-//                // 向pts_img里添加点
-//                pts_img.push_back( cv::Point2f( kp2[goodMatches[i].trainIdx].pt ) );
-//            }
-//
+            // 建立当前帧的深度图（格式cv::mat)
+            cv::Mat depth_pre_Mat(view->depth->noDims.y,view->depth->noDims.x,CV_32FC1);
+            ITMFloatImage_to_Mat(view->depth,depth_pre_Mat);
+
+
+            // 将彩色图中提取出的且是goodmatch特征点对齐到深度图(使用深度图的内参，彩色图的内参，深度图彩色图相对位姿，计算出新的uv）
+            rgb_align_to_depth(view,goodMatches,kp_pre,kp_curr);
+
+
+
+            // pnp准备——相机矩阵
+            float fx=view->calib.intrinsics_d.rojectionParamsSimple.fx;
+            float fy=view->calib.intrinsics_d.rojectionParamsSimple.fy;
+            float cx=view->calib.intrinsics_d.rojectionParamsSimple.cx;
+            float cy=view->calib.intrinsics_d.rojectionParamsSimple.cy;
+            double camera_matrix_data[3][3] = {
+                    {fx,  0,   cx},
+                    {0,   fy,  cy},
+                    {0,   0,   1}
+            };
+            cv::Mat cameraMatrix( 3, 3, CV_64F, camera_matrix_data );
+
+
+
+
+            // pnp准备---成功匹配的3D-2D关键点对
+            vector<cv::Point3f> pts_obj; // 存放当前帧goodmatch特征点的3D坐标
+            vector<cv::Point2f> pts_img;// 存放前一帧goodmathc特征点的2D坐标
+            for (size_t i=0; i<goodMatches.size(); i++)
+            {
+                // 向pts_obj里添加点
+                cv::Point2f p = kp_curr[goodMatches[i].trainIdx].pt;// query 是第一个, train 是第二个
+                ushort d = depth_pre_Mat.ptr<float>(pt.y)[pt.x];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
+                if (d == 0) continue; // d==0的点不参与pnp优化。
+                cv::Point3f p_xyz;
+                p_xyz.z=d/1000;
+                p_xyz.x=((p.x-cx)/fx)*p_xyz;
+                p_xyz.y=((p.y-cy)/fy)*p_xyz;
+                pts_obj.push_back( p_xyz );// 将(u,v,d)转成(x,y,z),并添加到pts_obj中.
+                // 向pts_img里添加点
+                pts_img.push_back( cv::Point2f( kp_pre[goodMatches[i].queryIdx].pt ) );
+            }
+
+
+
+//            显示pts_obj
 //            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
-//
-//
-//
-//            // pnp准备——相机矩阵
-//            double camera_matrix_data[3][3] = {
-//                    {C.fx,  0,     C.cx},
-//                    {0,     C.fy,  C.cy},
-//                    {0,     0,     1}
-//            };
-//            cv::Mat cameraMatrix( 3, 3, CV_64F, camera_matrix_data );
-//
-//
-//
-//            // pnp求解
-//            cv::Mat rvec, tvec, inliersPNP;
-//            cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 100, inliersPNP);
-//
-//            // pnp结果
-//            cout<<"inliers: "<<inliersPNP.rows<<endl;
-//            cout<<"R="<<rvec<<endl;
-//            cout<<"t="<<tvec<<endl;
-//
-//            // 修改trackingState
-//            changetrackingState_long(trackingState,rvec,tvec);
+//            int index_pcl=0;
+//            for(auto point:pts_obj)
+//            {
+//                pts_obj_pcl->points[index_pcl].x=point.x;
+//                pts_obj_pcl->points[index_pcl].y=point.y;
+//                pts_obj_pcl->points[index_pcl].z=point.z;
+//                index_pcl++;
+//            }
+
+
+
+
+
+            // pnp求解
+            cv::Mat rvec, tvec, inliersPNP;
+            cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 100, inliersPNP);
+
+            // pnp结果
+            cout<<"inliers: "<<inliersPNP.rows<<endl;
+            cout<<"R="<<rvec<<endl;
+            cout<<"t="<<tvec<<endl;
+
+            // 修改trackingState
+            changetrackingState_long(trackingState,rvec,tvec);
 
         }
 

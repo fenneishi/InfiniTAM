@@ -5,6 +5,8 @@
 #include "../Camera/ITMCalibIO.h"
 #include "../../Utils/ITMImageTypes.h"
 
+
+
 namespace ITMLib
 {
 	/** \brief
@@ -61,6 +63,13 @@ namespace ITMLib
 			delete depthNormal;
 			delete depthUncertainty;
 		}
+
+
+
+
+
+
+
 
 		// Suppress the default copy constructor and assignment operator
 		ITMView(const ITMView&);
