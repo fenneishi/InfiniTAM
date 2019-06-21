@@ -32,7 +32,7 @@ using namespace std;
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
-#include <pcl/visualization/cloud_viewer.h>
+//#include <pcl/visualization/cloud_viewer.h> 在mac上，这个玩意一include进来，就会导致大量报错
 #include <pcl/filters/voxel_grid.h>
 
 #include "../Utils/ITMImageTypes.h"
@@ -351,23 +351,18 @@ namespace ITMLib
 
 
 
-////            显示pts_obj
-//            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
-//            int index_pcl=0;
-//            for(auto point:pts_obj)
-//            {
-//                pts_obj_pcl->points[index_pcl].x=point.x;
-//                pts_obj_pcl->points[index_pcl].y=point.y;
-//                pts_obj_pcl->points[index_pcl].z=point.z;
-//                index_pcl++;
-//            }
-//            boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_pcl (new pcl::visualization::PCLVisualizer("curr"));
-//            viewer_pcl->addPointCloud(pts_obj_pcl, "data");
-//            while (!viewer_pcl->wasStopped())
-//            {
-//                viewer_pcl->spinOnce(100);
-//                boost::this_thread::sleep(boost::posix_time::microseconds(100000));
-//            }
+//            显示pts_obj
+            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
+            pcl::PCDWriter writer;
+            int index_pcl=0;
+            for(auto point:pts_obj)
+            {
+                pts_obj_pcl->points[index_pcl].x=point.x;
+                pts_obj_pcl->points[index_pcl].y=point.y;
+                pts_obj_pcl->points[index_pcl].z=point.z;
+                index_pcl++;
+            }
+           writer.write<pcl::PointXYZ> ("../../../pts_obj_pcl", *pts_obj_pcl, false);
 
 
 
