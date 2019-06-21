@@ -24,6 +24,7 @@
 
 #include "../../ORUtils/FileUtils.h"
 #include "../../InputSource/FFMPEGWriter.h"
+//#include <iostream>
 
 using namespace InfiniTAM::Engine;
 using namespace InputSource;
@@ -118,9 +119,11 @@ void UIEngine::glutDisplayFunction()
 void UIEngine::glutIdleFunction() // 从这里开始，根据用户的指令，进行帧处理
 {
 	UIEngine *uiEngine = UIEngine::Instance();
-
+//    std::cout<<"uiEngine->mainLoopAction"<<uiEngine->mainLoopAction<<std::endl;
+//    uiEngine->mainLoopAction=PROCESS_VIDEO;
 	switch (uiEngine->mainLoopAction)
 	{
+
 	case PROCESS_FRAME:
 		uiEngine->ProcessFrame(); uiEngine->processedFrameNo++;
 		uiEngine->mainLoopAction = PROCESS_PAUSED;
@@ -681,6 +684,7 @@ void UIEngine::ProcessFrame() // 帧处理，每次处理一帧
 }
 
 void UIEngine::Run() { glutMainLoop(); }
+
 void UIEngine::Shutdown()
 {
 	sdkDeleteTimer(&timer_instant);

@@ -180,10 +180,10 @@ namespace ITMLib
         {
 
             // 深度相机内参
-            float fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
-            float fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_d.projectionParamsSimple.px;
-            float cy=view->calib.intrinsics_d.projectionParamsSimple.py;
+            double fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
+            double fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
+            double cx=view->calib.intrinsics_d.projectionParamsSimple.px;
+            double cy=view->calib.intrinsics_d.projectionParamsSimple.py;
             Eigen::Matrix3d camera_matrix_depth;
             camera_matrix_depth<<
             fx,  0,   cx,
@@ -366,8 +366,6 @@ namespace ITMLib
 
 
 
-
-
             // pnp求解
             cv::Mat rvec, tvec, inliersPNP;
             cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 100, inliersPNP);
@@ -377,9 +375,17 @@ namespace ITMLib
             cout<<"R="<<rvec<<endl;
             cout<<"t="<<tvec<<endl;
 
+            cout<<"R(0,0)"<<rvec.ptr<float>(0)[0];
+            cout<<"R(0,2)"<<rvec.ptr<float>(0)[1];
+            cout<<"t[1]"<<tvec.ptr<float>(0)[0];
+            cout<<"t[2]"<<tvec.ptr<float>(0)[1];
+            cout<<"t[3]"<<tvec.ptr<float>(0)[2];
 
-            // 修改trackingState SetFrom
-            trackingState->pose_d->SetFrom(tvec.at(0,0),tvec.at(0,1),tvec.at(0,2),rvecat(0,0),rvecat(0,1),rvecat(0,2));
+//            // 修改trackingState SetFrom
+//            trackingState->pose_d->SetFrom(
+//                    tvec.ptr<float>(0)[0],tvec.ptr<float>(0)[1],tvec.ptr<float>(0)[2]
+//                    rvec.ptr<float>(0)[0],rvecat(0,1),rvecat(0,2)
+//                    );
 
         }
 
