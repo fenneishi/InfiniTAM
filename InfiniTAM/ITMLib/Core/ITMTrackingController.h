@@ -158,7 +158,7 @@ namespace ITMLib
         int align(cv::KeyPoint &kp,const Eigen::Matrix3d &camera_matrix_depth,const Eigen::Matrix3d  &camera_matrix_rgb,const Eigen::Matrix3d  &depth_to_rgb)
         {
 //          rgb参考系：齐次化(u,v)-->(u,v,1)
-            Eigen::Vector3d KeyPoint;
+            Eigen::Vector3d keyPoint;
             keypoint<<kp.pt.x,kp.pt.y,1;
 //          rgb参考系:归一化坐标
             keypoint=camera_matrix_rgb.inverse()*keypoint;
@@ -182,8 +182,8 @@ namespace ITMLib
             // 深度相机内参
             float fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
             float fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_d.projectionParamsSimple.cx;
-            float cy=view->calib.intrinsics_d.projectionParamsSimple.cy;
+            float cx=view->calib.intrinsics_d.projectionParamsSimple.px;
+            float cy=view->calib.intrinsics_d.projectionParamsSimple.py;
             Eigen::Matrix3d camera_matrix_depth;
             camera_matrix_depth<<
             fx,  0,   cx,
@@ -194,8 +194,8 @@ namespace ITMLib
             // 彩色相机内参
             float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
             float fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_rgb.projectionParamsSimple.cx;
-            float cy=view->calib.intrinsics_rgb.projectionParamsSimple.cy;
+            float cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
+            float cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
             Eigen::Matrix3d  camera_matrix_rgb;
             camera_matrix_rgb <<
             fx,  0,   cx,
@@ -235,28 +235,28 @@ namespace ITMLib
 //          descriptor = cv::DescriptorExtractor::create("ORB");
 
 
-            //格式转换：ITMUChar4Image--->cv:Mat(int rows, int cols, int type);
+
+            //建立RGB彩色图
             cv::Mat rgb_prev_Mat(view->rgb_prev->noDims.y,view->rgb_prev->noDims.x,CV_8UC3);
-            ITMUChar4Image_to_Mat(view->rgb_prev,rgb_prev_Mat);
+            ITMUChar4Image_to_Mat(view->rgb_prev,rgb_prev_Mat);//格式转换：ITMUChar4Image--->cv:Mat(int rows, int cols, int type);
             cv::Mat rgb_curr_Mat(view->rgb->noDims.y,view->rgb->noDims.x,CV_8UC3);
             ITMUChar4Image_to_Mat(view->rgb,rgb_curr_Mat);
-
             // 显示转换结果rgb_prev_Mat;
             cv::namedWindow("rgb_prev", cv::WINDOW_AUTOSIZE);
             cv::imshow("rgb_prev", rgb_prev_Mat);
             cv::waitKey(0);
             cv::destroyWindow("rgb_prev");
 
+
+
             // 提取关键点
             vector< cv::KeyPoint > kp_pre, kp_curr;
             detector->detect( rgb_prev_Mat, kp_pre );
             detector->detect( rgb_curr_Mat, kp_curr );
-
             // 计算描述子
             cv::Mat desp_pre, desp_curr;
             descriptor->compute( rgb_prev_Mat, kp_pre, desp_pre );
             descriptor->compute( rgb_curr_Mat, kp_curr, desp_curr );
-
             // 匹配描述子
             vector< cv::DMatch > matches;
             cv::FlannBasedMatcher matcher;
@@ -275,14 +275,12 @@ namespace ITMLib
                 matcher.match( desp_pre, desp_curr, matches );
             }
             cout<<"Find total "<<matches.size()<<" matches."<<endl;
-
             // 可视化：显示匹配的特征
             cv::Mat imgMatches;
             cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, matches, imgMatches );
             cv::imshow( "matches", imgMatches );
             cv::imwrite( "../../matches.png", imgMatches );
             cv::waitKey( 0 );
-
             // 筛选匹配，把距离太大的去掉:这里使用的准则是去掉大于四倍(1.5)最小距离的匹配
             vector< cv::DMatch > goodMatches;
             double minDis = 9999;
@@ -297,12 +295,12 @@ namespace ITMLib
                     goodMatches.push_back( matches[i] );
             }
             cout<<"good matches="<<goodMatches.size()<<endl;
-
             // 可视化：显示筛选后的匹配结果。
             cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, goodMatches, imgMatches );
             cv::imshow( "goodmatches", imgMatches );
             cv::imwrite( "../../goodmatches.png", imgMatches );
             cv::waitKey( 0 );
+
 
 
             // RANSAC滤波
@@ -313,16 +311,16 @@ namespace ITMLib
             ITMFloatImage_to_Mat(view->depth,depth_pre_Mat);
 
 
-            // 将彩色图中提取出的且是goodmatch特征点对齐到深度图(使用深度图的内参，彩色图的内参，深度图彩色图相对位姿，计算出新的uv）
+            // 将当前帧和前一帧彩色图中提取出的且是goodmatch特征点对齐到深度图(即用深度图的内参，彩色图的内参，深度图彩色图相对位姿，计算出新的uv）
             rgb_align_to_depth(view,goodMatches,kp_pre,kp_curr);
 
 
 
-            // pnp准备——相机矩阵
+            // pnp准备——建立相机矩阵
             float fx=view->calib.intrinsics_d.rojectionParamsSimple.fx;
             float fy=view->calib.intrinsics_d.rojectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_d.rojectionParamsSimple.cx;
-            float cy=view->calib.intrinsics_d.rojectionParamsSimple.cy;
+            float cx=view->calib.intrinsics_d.rojectionParamsSimple.px;
+            float cy=view->calib.intrinsics_d.rojectionParamsSimple.py;
             double camera_matrix_data[3][3] = {
                     {fx,  0,   cx},
                     {0,   fy,  cy},
@@ -333,7 +331,7 @@ namespace ITMLib
 
 
 
-            // pnp准备---成功匹配的3D-2D关键点对
+            // pnp准备---建立当前帧gooodmatch关键点(3D形式，即为当前帧相机坐标系下的3D坐标)，前一帧goodmathch关键点(2D形式,即为像素坐标)
             vector<cv::Point3f> pts_obj; // 存放当前帧goodmatch特征点的3D坐标
             vector<cv::Point2f> pts_img;// 存放前一帧goodmathc特征点的2D坐标
             for (size_t i=0; i<goodMatches.size(); i++)
@@ -344,8 +342,8 @@ namespace ITMLib
                 if (d == 0) continue; // d==0的点不参与pnp优化。
                 cv::Point3f p_xyz;
                 p_xyz.z=d/1000;
-                p_xyz.x=((p.x-cx)/fx)*p_xyz;
-                p_xyz.y=((p.y-cy)/fy)*p_xyz;
+                p_xyz.x=((p.x-cx)/fx)*p_xyz.z;
+                p_xyz.y=((p.y-cy)/fy)*p_xyz.z;
                 pts_obj.push_back( p_xyz );// 将(u,v,d)转成(x,y,z),并添加到pts_obj中.
                 // 向pts_img里添加点
                 pts_img.push_back( cv::Point2f( kp_pre[goodMatches[i].queryIdx].pt ) );
@@ -354,15 +352,22 @@ namespace ITMLib
 
 
 //            显示pts_obj
-//            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
-//            int index_pcl=0;
-//            for(auto point:pts_obj)
-//            {
-//                pts_obj_pcl->points[index_pcl].x=point.x;
-//                pts_obj_pcl->points[index_pcl].y=point.y;
-//                pts_obj_pcl->points[index_pcl].z=point.z;
-//                index_pcl++;
-//            }
+            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
+            int index_pcl=0;
+            for(auto point:pts_obj)
+            {
+                pts_obj_pcl->points[index_pcl].x=point.x;
+                pts_obj_pcl->points[index_pcl].y=point.y;
+                pts_obj_pcl->points[index_pcl].z=point.z;
+                index_pcl++;
+            }
+            boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_pcl (new pcl::visualization::PCLVisualizer("curr"));
+            viewer_pcl->addPointCloud(pts_obj_pcl, "data");
+            while (!viewer_pcl->wasStopped())
+            {
+                viewe_pcl->spinOnce(100);
+                boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+            }
 
 
 
