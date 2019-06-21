@@ -377,8 +377,9 @@ namespace ITMLib
             cout<<"R="<<rvec<<endl;
             cout<<"t="<<tvec<<endl;
 
-            // 修改trackingState
 
+            // 修改trackingState SetFrom
+            trackingState->pose_d->SetFrom(tvec.at(0,0),tvec.at(0,1),tvec.at(0,2),rvecat(0,0),rvecat(0,1),rvecat(0,2));
 
         }
 

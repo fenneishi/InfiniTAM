@@ -7,17 +7,18 @@
 .vscode/
 .DS_Store
 x64/
-/InfiniTAM/cmake-build-debug/
-/InfiniTAM/.vscode/
-/InfiniTAM/build/
-/InfiniTAM/buildx/
-/InfiniTAM/freeglut/
-/InfiniTAM/install/
-/InfiniTAM/librealsense/
-/InfiniTAM/Files/Out/out.ppm
-/InfiniTAM/Files/Out/*.ppm
-/InfiniTAM/Files/Teddy/Frames
-/InfiniTAM/*.tags
+InfiniTAM/cmake-build-debug/
+InfiniTAM/.vscode/
+InfiniTAM/build/
+InfiniTAM/buildx/
+InfiniTAM/freeglut/
+InfiniTAM/install/
+InfiniTAM/librealsense/
+InfiniTAM/Files/Out/out.ppm
+InfiniTAM/Files/Out/*.ppm
+InfiniTAM/Files/Teddy/Frames
+InfiniTAM/*.tags
+InfiniTAM/.idea/
 
 # QtCreator CMake
 CMakeLists.txt.user*
