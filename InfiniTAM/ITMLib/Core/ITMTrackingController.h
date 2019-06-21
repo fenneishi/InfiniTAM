@@ -9,7 +9,7 @@
 #include "../Trackers/Interface/ITMTracker.h"
 #include "../Utils/ITMLibSettings.h"
 
-/*--------------------------------------------------------------------------------------------------------------------------------------------
+/*--------------------------------------------------------------------------------------------------------------------------------------------long
 VO所需的头文件*/
 // 各种头文件
 // C++标准库
@@ -32,13 +32,13 @@ using namespace std;
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
-//#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/cloud_viewer.h>
 #include <pcl/filters/voxel_grid.h>
 
 #include "../Utils/ITMImageTypes.h"
 #include "../../ORUtils/MemoryDeviceType.h" // 调用T GetElement(int n, MemoryDeviceType memoryType)接口所需。
-#include "../../Utils/ITMMath.h"
-//------------------------------------------------------------------------------------------------------------------------------------------
+#include "../Utils/ITMMath.h"
+//------------------------------------------------------------------------------------------------------------------------------------------long
 
 
 
@@ -158,7 +158,7 @@ namespace ITMLib
         int align(cv::KeyPoint &kp,const Eigen::Matrix3d &camera_matrix_depth,const Eigen::Matrix3d  &camera_matrix_rgb,const Eigen::Matrix3d  &depth_to_rgb)
         {
 //          rgb参考系：齐次化(u,v)-->(u,v,1)
-            Eigen::Vector3d keyPoint;
+            Eigen::Vector3d keypoint;
             keypoint<<kp.pt.x,kp.pt.y,1;
 //          rgb参考系:归一化坐标
             keypoint=camera_matrix_rgb.inverse()*keypoint;
@@ -192,10 +192,10 @@ namespace ITMLib
 
 
             // 彩色相机内参
-            float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
-            float fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
-            float cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
+            fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
+            fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
+            cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
+            cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
             Eigen::Matrix3d  camera_matrix_rgb;
             camera_matrix_rgb <<
             fx,  0,   cx,
@@ -204,7 +204,7 @@ namespace ITMLib
 
 
             //  彩色相机_深度相机转换矩阵的逆
-            Matrix4f calib_inv=calib.trafo_rgb_to_depth.calib_inv;
+            Matrix4f calib_inv=view->calib.trafo_rgb_to_depth.calib_inv;
             Eigen::Matrix3d  depth_to_rgb;
             depth_to_rgb<<
             calib_inv(0,0), calib_inv(0,1),calib_inv(0,2),calib_inv(0,3),
@@ -217,7 +217,7 @@ namespace ITMLib
             for (size_t i=0; i<gooMatches.size(); i++)
             {
                 align(kps_pre[gooMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb);
-                align(kps_curr[goodMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb)
+                align(kps_curr[gooMatches[i].queryIdx],camera_matrix_depth,camera_matrix_rgb,depth_to_rgb);
             }
 
             return 0;
@@ -317,10 +317,10 @@ namespace ITMLib
 
 
             // pnp准备——建立相机矩阵
-            float fx=view->calib.intrinsics_d.rojectionParamsSimple.fx;
-            float fy=view->calib.intrinsics_d.rojectionParamsSimple.fy;
-            float cx=view->calib.intrinsics_d.rojectionParamsSimple.px;
-            float cy=view->calib.intrinsics_d.rojectionParamsSimple.py;
+            float fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
+            float fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
+            float cx=view->calib.intrinsics_d.projectionParamsSimple.px;
+            float cy=view->calib.intrinsics_d.projectionParamsSimple.py;
             double camera_matrix_data[3][3] = {
                     {fx,  0,   cx},
                     {0,   fy,  cy},
@@ -338,7 +338,7 @@ namespace ITMLib
             {
                 // 向pts_obj里添加点
                 cv::Point2f p = kp_curr[goodMatches[i].trainIdx].pt;// query 是第一个, train 是第二个
-                ushort d = depth_pre_Mat.ptr<float>(pt.y)[pt.x];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
+                ushort d = depth_pre_Mat.ptr<float>((int)p.y)[(int)p.x];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
                 if (d == 0) continue; // d==0的点不参与pnp优化。
                 cv::Point3f p_xyz;
                 p_xyz.z=d/1000;
@@ -351,23 +351,23 @@ namespace ITMLib
 
 
 
-//            显示pts_obj
-            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
-            int index_pcl=0;
-            for(auto point:pts_obj)
-            {
-                pts_obj_pcl->points[index_pcl].x=point.x;
-                pts_obj_pcl->points[index_pcl].y=point.y;
-                pts_obj_pcl->points[index_pcl].z=point.z;
-                index_pcl++;
-            }
-            boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_pcl (new pcl::visualization::PCLVisualizer("curr"));
-            viewer_pcl->addPointCloud(pts_obj_pcl, "data");
-            while (!viewer_pcl->wasStopped())
-            {
-                viewe_pcl->spinOnce(100);
-                boost::this_thread::sleep(boost::posix_time::microseconds(100000));
-            }
+////            显示pts_obj
+//            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
+//            int index_pcl=0;
+//            for(auto point:pts_obj)
+//            {
+//                pts_obj_pcl->points[index_pcl].x=point.x;
+//                pts_obj_pcl->points[index_pcl].y=point.y;
+//                pts_obj_pcl->points[index_pcl].z=point.z;
+//                index_pcl++;
+//            }
+//            boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_pcl (new pcl::visualization::PCLVisualizer("curr"));
+//            viewer_pcl->addPointCloud(pts_obj_pcl, "data");
+//            while (!viewer_pcl->wasStopped())
+//            {
+//                viewer_pcl->spinOnce(100);
+//                boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+//            }
 
 
 
@@ -383,7 +383,7 @@ namespace ITMLib
             cout<<"t="<<tvec<<endl;
 
             // 修改trackingState
-            changetrackingState_long(trackingState,rvec,tvec);
+
 
         }
 
