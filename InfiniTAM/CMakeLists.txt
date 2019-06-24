@@ -52,11 +52,25 @@ find_package (OpenCV REQUIRED)
 set(OpenCV_INCLUDE_DIRS ${OpenCV_INCLUDE_DIRS} /usr/local/include/opencv4/)
 include_directories (${OpenCV_INCLUDE_DIRS})
 
-# 输出find结果
+
+# 增加Sophus的依赖
+#find_package(Sophus REQUIRED )
+#set(Sophus_INCLUDE_DIRS ${Sophus_INCLUDE_DIRS} /usr/local/include/)
+#include_directories(${Sophus_INCLUDE_DIRS})
+#set(Sophus_LIBS ${Sophus_LIBS} Sophus)
+
+
+
+
+# 输出findpackage结果
 MESSAGE("PCL_INCLUDE_DIRS:::::::::::" ${PCL_INCLUDE_DIRS})
 MESSAGE("PCL_LIBS::::::::::::" ${PCL_LIBS})
 MESSAGE("OpenCV_INCLUDE_DIRS:::::::::::" ${OpenCV_INCLUDE_DIRS})
 MESSAGE("OpenCV_LIBS::::::::::::" ${OpenCV_LIBS})
+#MESSAGE("Sophus_INCLUDE_DIRS::::::::::::" ${Sophus_INCLUDE_DIRS})
+#MESSAGE("Sophus_LIBS::::::::::::" ${Sophus_LIBS})
+
+
 
 
 

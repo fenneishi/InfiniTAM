@@ -35,9 +35,15 @@ using namespace std;
 //#include <pcl/visualization/cloud_viewer.h> 在mac上，这个玩意一include进来，就会导致大量报错
 #include <pcl/filters/voxel_grid.h>
 
+//Sophus
+//#include <sophus/so3.h>
+//#include <sophus/se3.h>
+
+// InfiniTAM 内部头文件
 #include "../Utils/ITMImageTypes.h"
 #include "../../ORUtils/MemoryDeviceType.h" // 调用T GetElement(int n, MemoryDeviceType memoryType)接口所需。
 #include "../Utils/ITMMath.h"
+#include "../../ORUtils/SE3Pose.h"
 //------------------------------------------------------------------------------------------------------------------------------------------long
 
 
@@ -163,7 +169,7 @@ namespace ITMLib
                 camera_matrix_depth(2,0)==0&&   camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
                 ))
             {
-                std::out<<"camera_matrix_depth is wrong"<<std::endl;
+                std::cout<<"camera_matrix_depth is wrong"<<std::endl;
                 return -1;
             }
 //          camera_matrix_rgb检验
@@ -172,14 +178,14 @@ namespace ITMLib
                 camera_matrix_rgb(2,0)==0&&   camera_matrix_rgb(2,1)==0&&   camera_matrix_rgb(2,2)==1
             ))
             {
-                std::out<<"camera_matrix_rgb is wrong"<<std::endl;
+                std::cout<<"camera_matrix_rgb is wrong"<<std::endl;
                 return -1;
             }
 //          depth_to_rgb检验
             if(!(depth_to_rgb(3,0)==0&&camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
             ))
             {
-                std::out<<"depth_to_rgb is wrong"<<std::endl;
+                std::cout<<"depth_to_rgb is wrong"<<std::endl;
                 return -1;
             }
 
@@ -261,12 +267,26 @@ namespace ITMLib
 
         int changeTrackingState(ITMTrackingState *trackingState,const cv::Mat &rvec,const cv::Mat &tvec)
         {
-            //mat--->Eigen;
-            Eigen::Matrix4d T;
+//            cout<<"R(0,0)"<<rvec.ptr<float>(0)[0];
+//            cout<<"R(0,2)"<<rvec.ptr<float>(0)[1];
+//            cout<<"t[1]"<<tvec.ptr<float>(0)[0];
+//            cout<<"t[2]"<<tvec.ptr<float>(0)[1];
+//            cout<<"t[3]"<<tvec.ptr<float>(0)[2];
+            // R 李群上
+            ORUtils::Matrix3<float> R(rvec.ptr<float>(0)[0],rvec.ptr<float>(0)[1],rvec.ptr<float>(0)[2],
+                             rvec.ptr<float>(1)[0],rvec.ptr<float>(1)[1],rvec.ptr<float>(1)[2],
+                             rvec.ptr<float>(2)[0],rvec.ptr<float>(2)[1],rvec.ptr<float>(2)[2]);
+            // t 利群上
+            ORUtils::Vector3<float> t(tvec.ptr<float>(0)[0],tvec.ptr<float>(0)[1],tvec.ptr<float>(0)[2]);
 
+            // 相对位姿 李代数上
+            ORUtils::SE3Pose pose_relative(R,t);
 
+            // 当前帧位姿 李代数上（问题：上一帧位姿用trackingState->pose_pointCloud是否准确？）
+            pose_relative.MultiplyWith(trackingState->pose_pointCloud);
 
-            // SO3--->SE3
+            // 更新当前帧位姿
+            trackingState->pose_d->SetFrom(  &pose_relative  );
 
             return 0;
 
@@ -415,20 +435,18 @@ namespace ITMLib
 
 
 
-            // pnp求解
+            // pnp求解：必须要确定清楚优化的是哪一帧的位姿。
             cv::Mat rvec, tvec, inliersPNP;
             cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 100, inliersPNP);
+
+
 
             // pnp结果
             cout<<"inliers: "<<inliersPNP.rows<<endl;
             cout<<"R="<<rvec<<endl;
             cout<<"t="<<tvec<<endl;
 
-            cout<<"R(0,0)"<<rvec.ptr<float>(0)[0];
-            cout<<"R(0,2)"<<rvec.ptr<float>(0)[1];
-            cout<<"t[1]"<<tvec.ptr<float>(0)[0];
-            cout<<"t[2]"<<tvec.ptr<float>(0)[1];
-            cout<<"t[3]"<<tvec.ptr<float>(0)[2];
+
 
             // 修改trackingState SetFrom
             changeTrackingState(trackingState,rvec,tvec);
