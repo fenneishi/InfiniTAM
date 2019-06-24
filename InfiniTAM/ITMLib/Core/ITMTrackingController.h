@@ -306,9 +306,11 @@ namespace ITMLib
 
 
             //建立RGB彩色图
-            cv::Mat rgb_prev_Mat(view->rgb_prev->noDims.y,view->rgb_prev->noDims.x,CV_8UC3);
+            int width_cols_rgb=view->calib.intrinsics_rgb.imgSize.width;
+            int height_rows_rgb=view->calib.intrinsics_rgb.imgSize.height;
+            cv::Mat rgb_prev_Mat(height_rows_rgb,width_cols_rgb,CV_8UC3);
             ITMUChar4Image_to_Mat(view->rgb_prev,rgb_prev_Mat);//格式转换：ITMUChar4Image--->cv:Mat(int rows, int cols, int type);
-            cv::Mat rgb_curr_Mat(view->rgb->noDims.y,view->rgb->noDims.x,CV_8UC3);
+            cv::Mat rgb_curr_Mat(height_rows_rgb,width_cols_rgb,CV_8UC3);
             ITMUChar4Image_to_Mat(view->rgb,rgb_curr_Mat);
             // 显示转换结果rgb_prev_Mat;
             cv::namedWindow("rgb_prev", cv::WINDOW_AUTOSIZE);
@@ -445,7 +447,7 @@ namespace ITMLib
 
 
             // 修改trackingState SetFrom
-//            changeTrackingState(trackingState,rvec,tvec);
+            changeTrackingState(trackingState,rvec,tvec);
         }
 
 
