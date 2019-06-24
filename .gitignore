@@ -19,6 +19,8 @@ InfiniTAM/Files/Out/*.ppm
 InfiniTAM/Files/Teddy/Frames
 InfiniTAM/*.tags
 InfiniTAM/.idea/
+InfiniTAM/.idea/*
+InfiniTAM/.idea
 
 # QtCreator CMake
 CMakeLists.txt.user*

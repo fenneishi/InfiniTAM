@@ -31,7 +31,7 @@ using namespace std;
 // PCL
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-#include <pcl/common/transforms.h>
+//#include <pcl/common/transforms.h>
 //#include <pcl/visualization/cloud_viewer.h> 在mac上，这个玩意一include进来，就会导致大量报错
 #include <pcl/filters/voxel_grid.h>
 
@@ -79,7 +79,7 @@ namespace ITMLib
             for (int m = 0; m < depth->noDims.y; m++)
             {
                 for (int n = 0; n < depth->noDims.x; n++) {
-                    depth_Mat.ptr<float>(m)[n] = depth->GetElement(m * (depth->noDims.x) + n, MEMORYDEVICE_CPU);
+                    depth_Mat.ptr<float>(m)[n] = (float)depth->GetElement(m * (depth->noDims.x) + n, MEMORYDEVICE_CPU);
                 }
             }
         }
@@ -151,20 +151,54 @@ namespace ITMLib
             imshow("After RANSAC",img_RR_matches);
             cv::imwrite( "../../goodmatche_RANSAC.png", img_RR_matches);
             //等待任意按键按下
-            cv::waitKey(0);
+//            cv::waitKey(0);
 
         }
 
-        int align(cv::KeyPoint &kp,const Eigen::Matrix3d &camera_matrix_depth,const Eigen::Matrix3d  &camera_matrix_rgb,const Eigen::Matrix3d  &depth_to_rgb)
+        int align(cv::KeyPoint &kp,const Eigen::Matrix3d &camera_matrix_depth,const Eigen::Matrix3d  &camera_matrix_rgb,const Eigen::Matrix4d  &depth_to_rgb)
         {
+//          camera_matrix_depth检验
+            if(!(                               camera_matrix_depth(0,1)==0&&
+                camera_matrix_depth(1,0)==0&&
+                camera_matrix_depth(2,0)==0&&   camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
+                ))
+            {
+                std::out<<"camera_matrix_depth is wrong"<<std::endl;
+                return -1;
+            }
+//          camera_matrix_rgb检验
+            if(!(                             camera_matrix_rgb(0,1)==0&&
+                camera_matrix_rgb(1,0)==0&&
+                camera_matrix_rgb(2,0)==0&&   camera_matrix_rgb(2,1)==0&&   camera_matrix_rgb(2,2)==1
+            ))
+            {
+                std::out<<"camera_matrix_rgb is wrong"<<std::endl;
+                return -1;
+            }
+//          depth_to_rgb检验
+            if(!(depth_to_rgb(3,0)==0&&camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
+            ))
+            {
+                std::out<<"depth_to_rgb is wrong"<<std::endl;
+                return -1;
+            }
+
+
 //          rgb参考系：齐次化(u,v)-->(u,v,1)
             Eigen::Vector3d keypoint;
             keypoint<<kp.pt.x,kp.pt.y,1;
-//          rgb参考系:归一化坐标
+//          rgb参考系:归一化平面坐标
             keypoint=camera_matrix_rgb.inverse()*keypoint;
-//          depth参考系:归一化坐标
-            keypoint=depth_to_rgb*keypoint;
-//          depth参考系:齐次坐标
+//          rgb参考系:齐次归一化平面坐标
+            Eigen::Vector4d keypoint_1;
+            keypoint_1<<keypoint[0],keypoint[1],keypoint[2],1;
+
+
+//          depth参考系:齐次归一化平面坐标
+            keypoint_1=depth_to_rgb*keypoint_1;
+//          depth参考系:归一化平面坐标
+            keypoint<<keypoint_1[0],keypoint_1[1],keypoint_1[2];
+//          depth参考系:齐次像素坐标
             keypoint=camera_matrix_depth*keypoint;
             keypoint<<keypoint[0]/keypoint[2],keypoint[1]/keypoint[2],1;
 //          depth参考系:像素坐标
@@ -180,15 +214,16 @@ namespace ITMLib
         {
 
             // 深度相机内参
-            double fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
-            double fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
-            double cx=view->calib.intrinsics_d.projectionParamsSimple.px;
-            double cy=view->calib.intrinsics_d.projectionParamsSimple.py;
+            double fx=(double)view->calib.intrinsics_d.projectionParamsSimple.fx;
+            std::cout<<"fx"<<fx<<std::endl;
+            double fy=(double)view->calib.intrinsics_d.projectionParamsSimple.fy;
+            double cx=(double)view->calib.intrinsics_d.projectionParamsSimple.px;
+            double cy=(double)view->calib.intrinsics_d.projectionParamsSimple.py;
             Eigen::Matrix3d camera_matrix_depth;
-            camera_matrix_depth<<
-            fx,  0,   cx,
-            0,   fy,  cy,
-            0,   0,   1 ;
+            camera_matrix_depth<<   fx,  0,   cx,
+                                    0,   fy,  cy,
+                                    0,   0,   1;
+            std::cout<<"camera_matrix_depth:"<<camera_matrix_depth<<std::endl;
 
 
             // 彩色相机内参
@@ -197,20 +232,21 @@ namespace ITMLib
             cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
             cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
             Eigen::Matrix3d  camera_matrix_rgb;
-            camera_matrix_rgb <<
-            fx,  0,   cx,
-            0,   fy,  cy,
-            0,   0,   1 ;
+            camera_matrix_rgb << fx,  0,   cx,
+                                 0,   fy,  cy,
+                                 0,   0,   1 ;
+            std::cout<<"camera_matrix_rgb:"<<camera_matrix_rgb<<std::endl;
 
 
             //  彩色相机_深度相机转换矩阵的逆
-            Matrix4f calib_inv=view->calib.trafo_rgb_to_depth.calib_inv;
-            Eigen::Matrix3d  depth_to_rgb;
+            Matrix4f calib_inv=view->calib.trafo_rgb_to_depth.calib_inv; //Matrix4f是infiniTAM自己定义的类型
+            Eigen::Matrix4d  depth_to_rgb;
             depth_to_rgb<<
             calib_inv(0,0), calib_inv(0,1),calib_inv(0,2),calib_inv(0,3),
             calib_inv(1,0), calib_inv(1,1),calib_inv(0,2),calib_inv(0,3),
             calib_inv(2,0), calib_inv(2,1),calib_inv(2,2),calib_inv(2,3),
             calib_inv(3,0), calib_inv(3,1),calib_inv(3,2),calib_inv(3,3);
+            std::cout<<"depth_to_rgb:"<<depth_to_rgb<<std::endl;
 
 
 
@@ -221,6 +257,19 @@ namespace ITMLib
             }
 
             return 0;
+        }
+
+        int changeTrackingState(ITMTrackingState *trackingState,const cv::Mat &rvec,const cv::Mat &tvec)
+        {
+            //mat--->Eigen;
+            Eigen::Matrix4d T;
+
+
+
+            // SO3--->SE3
+
+            return 0;
+
         }
 
 
@@ -244,7 +293,7 @@ namespace ITMLib
             // 显示转换结果rgb_prev_Mat;
             cv::namedWindow("rgb_prev", cv::WINDOW_AUTOSIZE);
             cv::imshow("rgb_prev", rgb_prev_Mat);
-            cv::waitKey(0);
+//            cv::waitKey(0);
             cv::destroyWindow("rgb_prev");
 
 
@@ -280,7 +329,7 @@ namespace ITMLib
             cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, matches, imgMatches );
             cv::imshow( "matches", imgMatches );
             cv::imwrite( "../../matches.png", imgMatches );
-            cv::waitKey( 0 );
+//            cv::waitKey( 0 );
             // 筛选匹配，把距离太大的去掉:这里使用的准则是去掉大于四倍(1.5)最小距离的匹配
             vector< cv::DMatch > goodMatches;
             double minDis = 9999;
@@ -299,7 +348,7 @@ namespace ITMLib
             cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, goodMatches, imgMatches );
             cv::imshow( "goodmatches", imgMatches );
             cv::imwrite( "../../goodmatches.png", imgMatches );
-            cv::waitKey( 0 );
+//            cv::waitKey( 0 );
 
 
 
@@ -352,17 +401,17 @@ namespace ITMLib
 
 
 //            显示pts_obj
-            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
-            pcl::PCDWriter writer;
-            int index_pcl=0;
-            for(auto point:pts_obj)
-            {
-                pts_obj_pcl->points[index_pcl].x=point.x;
-                pts_obj_pcl->points[index_pcl].y=point.y;
-                pts_obj_pcl->points[index_pcl].z=point.z;
-                index_pcl++;
-            }
-           writer.write<pcl::PointXYZ> ("../../../pts_obj_pcl", *pts_obj_pcl, false);
+//            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
+//            pcl::PCDWriter writer;
+//            int index_pcl=0;
+//            for(auto point:pts_obj)
+//            {
+//                pts_obj_pcl->points[index_pcl].x=point.x;
+//                pts_obj_pcl->points[index_pcl].y=point.y;
+//                pts_obj_pcl->points[index_pcl].z=point.z;
+//                index_pcl++;
+//            }
+//           writer.write<pcl::PointXYZ> ("../../../pts_obj_pcl", *pts_obj_pcl, false);
 
 
 
@@ -381,13 +430,10 @@ namespace ITMLib
             cout<<"t[2]"<<tvec.ptr<float>(0)[1];
             cout<<"t[3]"<<tvec.ptr<float>(0)[2];
 
-//            // 修改trackingState SetFrom
-//            trackingState->pose_d->SetFrom(
-//                    tvec.ptr<float>(0)[0],tvec.ptr<float>(0)[1],tvec.ptr<float>(0)[2]
-//                    rvec.ptr<float>(0)[0],rvecat(0,1),rvecat(0,2)
-//                    );
-
+            // 修改trackingState SetFrom
+            changeTrackingState(trackingState,rvec,tvec);
         }
+
 
 
 
