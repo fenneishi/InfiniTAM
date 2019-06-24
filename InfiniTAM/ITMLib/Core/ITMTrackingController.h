@@ -85,6 +85,7 @@ namespace ITMLib
             for (int m = 0; m < depth->noDims.y; m++)
             {
                 for (int n = 0; n < depth->noDims.x; n++) {
+                    std::cout<<"m:"<<m<<"，n:"<<n<<std::endl;
                     depth_Mat.ptr<float>(m)[n] = (float)depth->GetElement(m * (depth->noDims.x) + n, MEMORYDEVICE_CPU);
                 }
             }
@@ -182,12 +183,12 @@ namespace ITMLib
                 return -1;
             }
 //          depth_to_rgb检验
-            if(!(depth_to_rgb(3,0)==0&&camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
-            ))
-            {
-                std::cout<<"depth_to_rgb is wrong"<<std::endl;
-                return -1;
-            }
+//            if(!(depth_to_rgb(3,0)==0&&camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
+//            ))
+//            {
+//                std::cout<<"depth_to_rgb is wrong"<<std::endl;
+//                return -1;
+//            }
 
 
 //          rgb参考系：齐次化(u,v)-->(u,v,1)
@@ -229,7 +230,7 @@ namespace ITMLib
             camera_matrix_depth<<   fx,  0,   cx,
                                     0,   fy,  cy,
                                     0,   0,   1;
-            std::cout<<"camera_matrix_depth:"<<camera_matrix_depth<<std::endl;
+            std::cout<<"camera_matrix_depth:"<<std::endl<<camera_matrix_depth<<std::endl;
 
 
             // 彩色相机内参
@@ -241,7 +242,7 @@ namespace ITMLib
             camera_matrix_rgb << fx,  0,   cx,
                                  0,   fy,  cy,
                                  0,   0,   1 ;
-            std::cout<<"camera_matrix_rgb:"<<camera_matrix_rgb<<std::endl;
+            std::cout<<"camera_matrix_rgb:"<<std::endl<<camera_matrix_rgb<<std::endl;
 
 
             //  彩色相机_深度相机转换矩阵的逆
@@ -252,7 +253,7 @@ namespace ITMLib
             calib_inv(1,0), calib_inv(1,1),calib_inv(0,2),calib_inv(0,3),
             calib_inv(2,0), calib_inv(2,1),calib_inv(2,2),calib_inv(2,3),
             calib_inv(3,0), calib_inv(3,1),calib_inv(3,2),calib_inv(3,3);
-            std::cout<<"depth_to_rgb:"<<depth_to_rgb<<std::endl;
+            std::cout<<"depth_to_rgb:"<<std::endl<<depth_to_rgb<<std::endl;
 
 
 
@@ -300,8 +301,7 @@ namespace ITMLib
             cv::Ptr<cv::DescriptorExtractor> descriptor;
             detector = cv::ORB::create();
             descriptor = cv::ORB::create();
-//          detector = cv::FeatureDetector::create("ROB");
-//          descriptor = cv::DescriptorExtractor::create("ORB");
+
 
 
 
@@ -351,29 +351,29 @@ namespace ITMLib
             cv::imwrite( "../../matches.png", imgMatches );
 //            cv::waitKey( 0 );
             // 筛选匹配，把距离太大的去掉:这里使用的准则是去掉大于四倍(1.5)最小距离的匹配
-            vector< cv::DMatch > goodMatches;
-            double minDis = 9999;
-            for ( size_t i=0; i<matches.size(); i++ )
-            {
-                if ( matches[i].distance < minDis )
-                    minDis = matches[i].distance;
-            }
-            for ( size_t i=0; i<matches.size(); i++ )
-            {
-                if (matches[i].distance < 4*minDis)
-                    goodMatches.push_back( matches[i] );
-            }
-            cout<<"good matches="<<goodMatches.size()<<endl;
-            // 可视化：显示筛选后的匹配结果。
-            cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, goodMatches, imgMatches );
-            cv::imshow( "goodmatches", imgMatches );
-            cv::imwrite( "../../goodmatches.png", imgMatches );
-//            cv::waitKey( 0 );
+            vector< cv::DMatch > goodMatches=matches;
+//            double minDis = 9999;
+//            for ( size_t i=0; i<matches.size(); i++ )
+//            {
+//                if ( matches[i].distance < minDis )
+//                    minDis = matches[i].distance;
+//            }
+//            for ( size_t i=0; i<matches.size(); i++ )
+//            {
+//                if (matches[i].distance < 4*minDis)
+//                    goodMatches.push_back( matches[i] );
+//            }
+//            cout<<"good matches="<<goodMatches.size()<<endl;
+//            // 可视化：显示筛选后的匹配结果。
+//            cv::drawMatches( rgb_prev_Mat, kp_pre,rgb_curr_Mat,kp_curr, goodMatches, imgMatches );
+//            cv::imshow( "goodmatches", imgMatches );
+//            cv::imwrite( "../../goodmatches.png", imgMatches );
+////            cv::waitKey( 0 );
 
 
 
             // RANSAC滤波
-            RANSAC_long(kp_pre,kp_curr,goodMatches,rgb_prev_Mat,rgb_curr_Mat);
+//            RANSAC_long(kp_pre,kp_curr,goodMatches,rgb_prev_Mat,rgb_curr_Mat);
 
             // 建立当前帧的深度图（格式cv::mat)
             cv::Mat depth_pre_Mat(view->depth->noDims.y,view->depth->noDims.x,CV_32FC1);
@@ -403,41 +403,37 @@ namespace ITMLib
             // pnp准备---建立当前帧gooodmatch关键点(3D形式，即为当前帧相机坐标系下的3D坐标)，前一帧goodmathch关键点(2D形式,即为像素坐标)
             vector<cv::Point3f> pts_obj; // 存放当前帧goodmatch特征点的3D坐标
             vector<cv::Point2f> pts_img;// 存放前一帧goodmathc特征点的2D坐标
+            std::cout<<goodMatches.size()<<std::endl;
             for (size_t i=0; i<goodMatches.size(); i++)
             {
+                // 提取当前帧和pre帧关键点
+                cv::Point2f p_curr = kp_curr[goodMatches[i].trainIdx].pt;// query 是第一个, train 是第二个
+                cv::Point2f p_pre = kp_pre[goodMatches[i].queryIdx].pt;
+                std::cout<<"curr"<<kp_curr[goodMatches[i].trainIdx].pt<<" "<<"pre"<< kp_pre[goodMatches[i].queryIdx].pt<<std::endl;
+                if(p_curr.x>640||p_curr.y>480||p_pre.x>640||p_pre.y>480)
+                    continue;
+
                 // 向pts_obj里添加点
-                cv::Point2f p = kp_curr[goodMatches[i].trainIdx].pt;// query 是第一个, train 是第二个
-                ushort d = depth_pre_Mat.ptr<float>((int)p.y)[(int)p.x];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
+                float d = depth_pre_Mat.ptr<float>((int)p_curr.y)[(int)p_curr.x];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
                 if (d == 0) continue; // d==0的点不参与pnp优化。
                 cv::Point3f p_xyz;
                 p_xyz.z=d/1000;
-                p_xyz.x=((p.x-cx)/fx)*p_xyz.z;
-                p_xyz.y=((p.y-cy)/fy)*p_xyz.z;
+                p_xyz.x=((p_curr.x-cx)/fx)*p_xyz.z;
+                p_xyz.y=((p_curr.y-cy)/fy)*p_xyz.z;
                 pts_obj.push_back( p_xyz );// 将(u,v,d)转成(x,y,z),并添加到pts_obj中.
+
                 // 向pts_img里添加点
-                pts_img.push_back( cv::Point2f( kp_pre[goodMatches[i].queryIdx].pt ) );
+                pts_img.push_back( cv::Point2f(p_pre) );
             }
 
 
 
-//            显示pts_obj
-//            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
-//            pcl::PCDWriter writer;
-//            int index_pcl=0;
-//            for(auto point:pts_obj)
-//            {
-//                pts_obj_pcl->points[index_pcl].x=point.x;
-//                pts_obj_pcl->points[index_pcl].y=point.y;
-//                pts_obj_pcl->points[index_pcl].z=point.z;
-//                index_pcl++;
-//            }
-//           writer.write<pcl::PointXYZ> ("../../../pts_obj_pcl", *pts_obj_pcl, false);
 
 
 
             // pnp求解：必须要确定清楚优化的是哪一帧的位姿。
             cv::Mat rvec, tvec, inliersPNP;
-            cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 100, inliersPNP);
+            cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
 
 
 
@@ -449,7 +445,7 @@ namespace ITMLib
 
 
             // 修改trackingState SetFrom
-            changeTrackingState(trackingState,rvec,tvec);
+//            changeTrackingState(trackingState,rvec,tvec);
         }
 
 
@@ -460,13 +456,15 @@ namespace ITMLib
 
 		void Track(ITMTrackingState *trackingState, const ITMView *view)
 		{
-			std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
-			if(view->rgb_prev->NoReSet==0)
+			static int long_count=0;
+            std::cout<<"--------------------------------process:"<<long_count<<"-------------------------------------"<<endl;
+            std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
+			if(view->rgb_prev->NoReSet==false)
             {
 			    VO_initialize(trackingState,view);
             }
-
 		    tracker->TrackCamera(trackingState, view);
+            long_count++;
 		}
 
 		template <typename TSurfel>
@@ -562,6 +560,21 @@ namespace ITMLib
 
 
 
+
+//            显示pts_obj
+//            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
+//            pcl::PCDWriter writer;
+//            int index_pcl=0;
+//            for(auto point:pts_obj)
+//            {
+//                pts_obj_pcl->points[index_pcl].x=point.x;
+//                pts_obj_pcl->points[index_pcl].y=point.y;
+//                pts_obj_pcl->points[index_pcl].z=point.z;
+//                index_pcl++;
+//            }
+//           writer.write<pcl::PointXYZ> ("../../../pts_obj_pcl", *pts_obj_pcl, false);
+//          detector = cv::FeatureDetector::create("ROB");
+//          descriptor = cv::DescriptorExtractor::create("ORB");
 
 
 
