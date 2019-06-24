@@ -85,8 +85,11 @@ namespace ITMLib
             for (int m = 0; m < depth->noDims.y; m++)
             {
                 for (int n = 0; n < depth->noDims.x; n++) {
-                    std::cout<<"m:"<<m<<"，n:"<<n<<std::endl;
-                    depth_Mat.ptr<float>(m)[n] = (float)depth->GetElement(m * (depth->noDims.x) + n, MEMORYDEVICE_CPU);
+//                    std::cout<<"m:"<<m<<"，n:"<<n<<std::endl;
+                    float d=(float)depth->GetElement(m * (depth->noDims.x) + n, MEMORYDEVICE_CPU);
+                    depth_Mat.ptr<float>(m)[n] = d;
+                    std::cout<<d<<std::endl;
+                    std::cout<<depth_Mat.ptr<float>(m)[n]<<std::endl;
                 }
             }
         }
@@ -378,8 +381,8 @@ namespace ITMLib
 //            RANSAC_long(kp_pre,kp_curr,goodMatches,rgb_prev_Mat,rgb_curr_Mat);
 
             // 建立当前帧的深度图（格式cv::mat)
-            cv::Mat depth_pre_Mat(view->depth->noDims.y,view->depth->noDims.x,CV_32FC1);
-            ITMFloatImage_to_Mat(view->depth,depth_pre_Mat);
+//            cv::Mat depth_pre_Mat(view->depth->noDims.y,view->depth->noDims.x,CV_32FC1);
+//            ITMFloatImage_to_Mat(view->depth,depth_pre_Mat);
 
 
             // 将当前帧和前一帧彩色图中提取出的且是goodmatch特征点对齐到深度图(即用深度图的内参，彩色图的内参，深度图彩色图相对位姿，计算出新的uv）
@@ -416,7 +419,12 @@ namespace ITMLib
                     continue;
 
                 // 向pts_obj里添加点
-                float d = depth_pre_Mat.ptr<float>((int)p_curr.y)[(int)p_curr.x];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
+                int col=p_curr.x;
+                int row=p_curr.y;
+                int num=col+width_cols_rgb*row;
+                float d=view->depth->GetElement(num,MEMORYDEVICE_CPU);
+//                float d=(float)view->depth->GetElement(m * (depth->noDims.x) + n, );
+//                float d = depth_pre_Mat.ptr<float>((int)p_curr.y)[(int)p_curr.x];// 获取d是要小心！x是向右的，y是向下的，所以y才是行，x是列！
                 if (d == 0) continue; // d==0的点不参与pnp优化。
                 cv::Point3f p_xyz;
                 p_xyz.z=d/1000;
