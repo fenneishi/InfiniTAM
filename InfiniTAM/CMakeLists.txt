@@ -9,9 +9,14 @@ PROJECT(InfiniTAM)
 ##########################################
 # debug时，防止编译器过度优化，导致变量无法显示#
 ##########################################
-#set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} -O0)
-#set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG} -O0)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -o0")
+
+set(CMAKE_BUILD_TYPE "Debug")
+IF(CMAKE_COMPILER_IS_GNUCC)
+  message("----------------------------------------------------------------------------------------------------------CMAKE_COMPILER_IS_GNUCC")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
+ENDIF(CMAKE_COMPILER_IS_GNUCC)
+
 
 #################################
 # Specify the CMake module path #
