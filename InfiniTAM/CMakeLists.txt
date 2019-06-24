@@ -9,8 +9,9 @@ PROJECT(InfiniTAM)
 ##########################################
 # debug时，防止编译器过度优化，导致变量无法显示#
 ##########################################
-set(CMAKE_CXX_FLAGS_DEBUG “$ {CMAKE_CXX_FLAGS_DEBUG} -O0”)
-set(CMAKE_C_FLAGS_DEBUG “$ {CMAKE_C_FLAGS_DEBUG} -O0”)
+#set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} -O0)
+#set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG} -O0)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -o0")
 
 #################################
 # Specify the CMake module path #
