@@ -202,12 +202,15 @@ public:
                 std::cout<<"depth_to_rgb:"<<std::endl<<depth_to_rgb<<std::endl;
 
         // depth_Mat初始化
+        cv::Mat testChar;
+        cv::Mat testfloat;
         for (int r = 0; r < view->depth->noDims.y; r++)
         {
             for (int c = 0; c <view->depth->noDims.x; c++) {
-                depth_Mat.ptr<float>(r)[c] = 0;
+                depth_Mat.ptr<double>(r)[c] = (double)0;
             }
         }
+
 
 
         // depth_Mat赋值
@@ -215,17 +218,20 @@ public:
         {
             for (int c = 0; c < view->depth->noDims.x; c++) {
                 // d
-                float d=(float)view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+                double d=(double)view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
                 // [u_old,v_old]
                 int u_old=c;
                 int v_old=r;
                 // [u_new,v_new]
                 int u_new=u_old;
                 int v_new=v_old;
-                // aligen
-                align_pixel(u_new,v_new,u_old,v_old,d,camera_matrix_rgb,camera_matrix_depth,depth_to_rgb);
-                // undata depth_Mat
-                depth_Mat.ptr<float>(v_new)[u_new]=d;
+                // aligen(对于测不到的点，d=-1)
+                if(d>0)
+                {
+                    align_pixel(u_new,v_new,u_old,v_old,d,camera_matrix_rgb,camera_matrix_depth,depth_to_rgb);
+                    // undata depth_Mat
+                    depth_Mat.ptr<float>(v_new)[u_new]=d;
+                }
             }
         }
         return 0;
@@ -328,17 +334,19 @@ public:
         gms_matcher gms(kps_pre, rgb_prev_Mat.size(), kps_curr,rgb_curr_Mat.size(),matches_all);
         cout << "GMS::Get total " << gms.GetInlierMask(vbInliers, false, false) << " matches." << endl;
         // collect matches
-        for (size_t i = 0; i < vbInliers.size(); ++i)
-        {
-            if (vbInliers[i] == true)
-            {
-                matches_gms.push_back(matches_all[i]);
-            }
-        }
-        // draw matching
-        cv::Mat show = DrawInlier(rgb_prev_Mat, rgb_curr_Mat, kps_pre, kps_curr, matches_gms, 1);
-        cv::imshow("show", show);
-        cv::waitKey();
+//        for (size_t i = 0; i < vbInliers.size(); ++i)
+//        {
+//            if (vbInliers[i] == true)
+//            {
+//                matches_gms.push_back(matches_all[i]);
+//            }
+//        }
+//        // draw matching
+//        cv::Mat show = DrawInlier(rgb_prev_Mat, rgb_curr_Mat, kps_pre, kps_curr, matches_gms, 1);
+//        cv::imshow("show", show);
+//        cv::waitKey();
+
+        return 0;
     }
 
 
@@ -411,7 +419,8 @@ public:
 
         // ---------------------------------------------pnp求解--------------------------------------
         cv::Mat rvec, tvec, inliersPNP;
-        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
+//        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
+        cv::solvePnP( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec);
         cout<<"PnP_result::inliers: "<<inliersPNP.rows<<endl;
         cout<<"PnP_result::R="<<rvec<<endl;
         cout<<"PnP_result::t="<<tvec<<endl;
