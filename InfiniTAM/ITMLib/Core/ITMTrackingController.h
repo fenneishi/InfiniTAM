@@ -285,8 +285,8 @@ namespace ITMLib
             // 相对位姿 李代数上
             ORUtils::SE3Pose pose_relative(R,t);
 
-            // 当前帧位姿 李代数上（问题：上一帧位姿用trackingState->pose_pointCloud是否准确？）
-            pose_relative.MultiplyWith(trackingState->pose_pointCloud);
+            // 当前帧位姿 李代数上
+            pose_relative.MultiplyWith(trackingState->pose_d);
 
             // 更新当前帧位姿
             trackingState->pose_d->SetFrom(  &pose_relative  );
@@ -440,7 +440,7 @@ namespace ITMLib
 
 
 
-            // pnp求解：必须要确定清楚优化的是哪一帧的位姿。
+            // pnp求解：必须要确定清楚优化的是谁相对于谁的位姿。
             cv::Mat rvec, tvec, inliersPNP;
             cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
 
