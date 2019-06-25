@@ -25,7 +25,7 @@ namespace ITMLib
 		    are expected to contain a rotation and m30...m32
 		    contain the translation.
 		*/
-		void SetFrom(const Matrix4f & src)
+		void SetFrom(const Matrix4f & src) // 针对T向量的求逆方式，非常棒，虽然还没时间完全看懂
 		{
 			this->calib = src;
 			this->calib_inv.setIdentity();

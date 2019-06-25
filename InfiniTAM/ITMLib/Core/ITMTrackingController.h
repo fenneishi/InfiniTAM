@@ -35,9 +35,7 @@ using namespace std;
 //#include <pcl/visualization/cloud_viewer.h> 在mac上，这个玩意一include进来，就会导致大量报错
 #include <pcl/filters/voxel_grid.h>
 
-//Sophus
-//#include <sophus/so3.h>
-//#include <sophus/se3.h>
+
 
 // InfiniTAM 内部头文件
 #include "../Utils/ITMImageTypes.h"
@@ -45,6 +43,379 @@ using namespace std;
 #include "../Utils/ITMMath.h"
 #include "../../ORUtils/SE3Pose.h"
 //------------------------------------------------------------------------------------------------------------------------------------------long
+
+
+namespace QiLong
+{
+    //-----------------------------------------------------------------------------------tool function---------------------------------------------------------
+    int align_pixel(
+                int u_new,int v_new,int u_old,int v_old,float d,
+                const Eigen::Matrix3d &camera_matrix_rgb,
+                const Eigen::Matrix3d &camera_matrix_depth,
+                const Eigen::Matrix4d &depth_to_rgb)
+    {
+
+        // --------------------check--------------------
+        //camera_matrix_rgb
+        if
+        (!(                         camera_matrix_rgb(0,1)==0&&
+        camera_matrix_rgb(1,0)==0&&
+        camera_matrix_rgb(2,0)==0&& camera_matrix_rgb(2,1)==0&& camera_matrix_rgb(2,2)==1
+        ))
+        {
+            std::cout<<"camera_matrix_rgb is wrong"<<std::endl;
+            return -1;
+        }
+        //camera_matrix_depth
+        if
+        (!(                           camera_matrix_depth(0,1)==0&&
+        camera_matrix_depth(1,0)==0&&
+        camera_matrix_depth(2,0)==0&& camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
+        ))
+        {
+        std::cout<<"camera_matrix_depth is wrong"<<std::endl;
+        return -1;
+        }
+        //depth_to_rgb
+        if
+        (!( depth_to_rgb(3,0)==0 &&
+            depth_to_rgb(3,1)==0 &&
+            depth_to_rgb(3,2)==0 &&
+            depth_to_rgb(3,3)==1 ) )
+        {
+        std::cout<<"depth_to_rgb is wrong"<<std::endl;
+        return -1;
+        }
+
+
+        // --------------------transform--------------------
+        // depth coordinate system
+        Eigen::Vector3d point;
+        point<<u_old,v_old,1;
+        point=camera_matrix_depth.inverse()*point;//这个乘法的准确性待商量,要仔细看看eigen的语法。
+        point=d*point;
+        Eigen::Vector4d point_1;
+        point_1<<point[0],point[1],point[2],1;
+        // rgb coordinate system
+        point_1=depth_to_rgb*point_1;
+        point<<point_1[0],point_1[1],point_1[2];
+        point<<point[0]/point[2],point[1]/point[2],1;
+        point=camera_matrix_rgb*point;
+
+
+        // --------------------result--------------------
+        u_new=point[0];
+        v_new=point[1];
+
+        return 0;
+    }
+
+    int align_depthImage(const ITMLib::ITMView *view,cv::Mat &depth_Mat)
+    {
+        // 彩色相机内参<Eigen::Matrix3d>
+        float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
+        float fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
+        float cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
+        float cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
+        Eigen::Matrix3d  camera_matrix_rgb;
+        camera_matrix_rgb <<
+                fx,   0,  cx,
+                0,   fy,  cy,
+                0,   0,   1 ;
+        std::cout<<"camera_matrix_rgb:"<<std::endl<<camera_matrix_rgb<<std::endl;
+
+
+        // 深度相机内参<Eigen::Matrix3d>
+        fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
+        fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
+        cx=view->calib.intrinsics_d.projectionParamsSimple.px;
+        cy=view->calib.intrinsics_d.projectionParamsSimple.py;
+        Eigen::Matrix3d camera_matrix_depth;
+        camera_matrix_depth<<
+               fx,   0,  cx,
+                0,  fy,  cy,
+                0,   0,   1;
+        std::cout<<"camera_matrix_depth:"<<std::endl<<camera_matrix_depth<<std::endl;
+
+
+        //  外参：rgb_to_depth<Eigen::Matrix4d>
+        Matrix4f calib=view->calib.trafo_rgb_to_depth.calib; //Matrix4f是infiniTAM自己定义的类型
+        Eigen::Matrix4d  rgb_to_depth;
+        rgb_to_depth<<
+                calib.m00,calib.m10,calib.m20,calib.m30,//第1行
+                calib.m01,calib.m11,calib.m21,calib.m31,//第2行
+                calib.m02,calib.m12,calib.m22,calib.m32,//第3行
+                calib.m03,calib.m13,calib.m23,calib.m33,//第4行
+                std::cout<<"rgb_to_depth:"<<std::endl<<rgb_to_depth<<std::endl;
+
+        //  外参：depth_to_rgb<Eigen::Matrix4d>
+        Matrix4f calib_inv=view->calib.trafo_rgb_to_depth.calib_inv; //Matrix4f是infiniTAM自己定义的类型
+        Eigen::Matrix4d  depth_to_rgb;
+        depth_to_rgb<<
+                calib_inv.m00,calib_inv.m10,calib_inv.m20,calib_inv.m30,//第1行
+                calib_inv.m01,calib_inv.m11,calib_inv.m21,calib_inv.m31,//第2行
+                calib_inv.m02,calib_inv.m12,calib_inv.m22,calib_inv.m32,//第3行
+                calib_inv.m03,calib_inv.m13,calib_inv.m23,calib_inv.m33,//第4行
+                std::cout<<"depth_to_rgb:"<<std::endl<<depth_to_rgb<<std::endl;
+
+        // depth_Mat初始化
+        for (int r = 0; r < view->depth->noDims.y; r++)
+        {
+            for (int c = 0; c <view->depth->noDims.x; c++) {
+                depth_Mat.ptr<float>(r)[c] = 0;
+            }
+        }
+
+
+        // depth_Mat赋值
+        for (int r = 0; r < view->depth->noDims.y; r++)
+        {
+            for (int c = 0; c < view->depth->noDims.x; c++) {
+                // d
+                float d=(float)view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+                // [u_old,v_old]
+                int u_old=c;
+                int v_old=r;
+                // [u_new,v_new]
+                int u_new;
+                int v_new;
+                // aligen
+                align_pixel(u_new,v_new,u_old,v_old,d,camera_matrix_rgb,camera_matrix_depth,depth_to_rgb);
+                // undata depth_Mat
+                depth_Mat.ptr<float>(v_new)[u_new]=d;
+            }
+        }
+        return 0;
+    }
+
+    int  ITMUChar4Image_to_CVMat(const ITMUChar4Image *rgb,cv::Mat &rgb_Mat)
+    {
+        for (int r = 0; r < rgb->noDims.y; r++)
+        {
+            for (int c=0; c < rgb->noDims.x; c++)
+            {
+                rgb_Mat.ptr<uchar>(r)[c*3+2]=rgb->GetElement( r*(rgb->noDims.x)+c , MEMORYDEVICE_CPU ).r;
+                rgb_Mat.ptr<uchar>(r)[c*3+1]=rgb->GetElement( r*(rgb->noDims.x)+c , MEMORYDEVICE_CPU ).g;
+                rgb_Mat.ptr<uchar>(r)[c*3]  =rgb->GetElement( r*(rgb->noDims.x)+c , MEMORYDEVICE_CPU ).b;
+            }
+       }
+       return 0;
+    }
+
+    //-------------------------------------------------------------------------------------step function-----------------------------------------------------------
+
+    // step_1
+    int feature_matching_ORB(
+            const ITMLib::ITMView *view,
+            vector< cv::KeyPoint > &kps_pre,
+            vector< cv::KeyPoint > &kps_curr,
+            vector< cv::DMatch > &matches)
+    {
+        // 建立特征提取器与描述子提取器(ORB)
+        cv::Ptr<cv::FeatureDetector> detector;
+        cv::Ptr<cv::DescriptorExtractor> descriptor;
+        detector = cv::ORB::create();
+        descriptor = cv::ORB::create();
+        //建立RGB彩色图<cv::Mat>
+        int width=view->calib.intrinsics_rgb.imgSize.width;
+        int height=view->calib.intrinsics_rgb.imgSize.height;
+        cv::Mat rgb_prev_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb_prev,rgb_prev_Mat);
+        cv::Mat rgb_curr_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb,rgb_curr_Mat);
+        // 提取关键点
+        detector->detect( rgb_prev_Mat, kps_pre );
+        detector->detect( rgb_curr_Mat, kps_curr );
+        // 计算描述子
+        cv::Mat desps_pre, desps_curr;
+        descriptor->compute( rgb_prev_Mat, kps_pre, desps_pre );
+        descriptor->compute( rgb_curr_Mat, kps_curr, desps_curr );
+        // 匹配描述子
+        cv::FlannBasedMatcher matcher;
+        // https://stackoverflow.com/questions/11565255/opencv-flann-with-orb-descriptors?answertab=votes#tab-top
+        if(desps_pre.type()!=CV_32F) {
+            desps_pre.convertTo(desps_pre, CV_32F);
+        }
+        if(desps_curr.type()!=CV_32F) {
+            desps_curr.convertTo(desps_curr, CV_32F);
+        }
+        if(desps_pre.empty()||desps_curr.empty())
+        {
+            std::cout<<"descriptor empty"<<std::endl;
+        } else
+        {
+            matcher.match( desps_pre, desps_curr, matches );
+        }
+        cout<<"Find total "<<matches.size()<<" matches."<<endl;
+        // 可视化：显示匹配的特征
+        cv::Mat imgMatches;
+        cv::drawMatches( rgb_prev_Mat, kps_pre,rgb_curr_Mat,kps_curr, matches, imgMatches );
+        cv::imshow( "matches", imgMatches );
+        cv::imwrite( "../../matches.png", imgMatches );
+        return 0;
+    }
+
+
+
+
+
+    // step_2
+    int pnp(
+            const ITMLib::ITMView *view,
+            const vector< cv::KeyPoint > &kps_pre,
+            const vector< cv::KeyPoint > &kps_curr,
+            const vector< cv::DMatch > &matches,
+            Matrix4f &T_CurrToPre )
+    {
+
+        // image size
+        // orb
+        int width=view->calib.intrinsics_rgb.imgSize.width;
+        int height=view->calib.intrinsics_rgb.imgSize.height;
+        // depth
+        int width_d=view->calib.intrinsics_d.imgSize.width;
+        int height_d=view->calib.intrinsics_d.imgSize.height;
+
+
+
+        // ---------------------------------------------pnp准备:建立相机矩阵---------------------------------------------
+        float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
+        float fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
+        float cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
+        float cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
+        double camera_matrix_data[3][3] = {
+                {fx,  0,   cx},
+                {0,   fy,  cy},
+                {0,   0,   1}
+        };
+        cv::Mat cameraMatrix( 3, 3, CV_64F, camera_matrix_data );
+
+        // ---------------------------------------------pnp准备:对齐到rgb的深度图(仅当前帧)-----------------------------------
+
+        cv::Mat depth_curr_Mat_align(height_d,width_d,CV_64FC1);
+        align_depthImage(view,depth_curr_Mat_align);
+
+
+
+        // ---------------------------------------------pnp准备:建立3Dpoints,2Dpoints--------------------------------------
+        // creat
+        vector<cv::Point2f> pts_img;// pre image 2Dpoints
+        vector<cv::Point3f> pts_obj; // curr image 3Dpoints
+        // fill pts_img and pts_obj
+        for (size_t i=0; i<matches.size(); i++)
+        {
+            // extract
+            cv::Point2f p_pre  = kps_pre[matches[i].queryIdx].pt;
+            cv::Point2f p_curr = kps_curr[matches[i].trainIdx].pt;
+
+
+            // get depth and check
+            double d=depth_curr_Mat_align.ptr<double>((int)p_curr.x)[(int)p_curr.y];
+            if (d == 0) continue; // d==0的点不参与pnp优化。
+
+            // fill pts_obj
+            cv::Point3f p_xyz;
+            p_xyz.z=d;//注意，这里的d不是从原始图片获取的，所以应该单位应该换算成m了
+            p_xyz.x=((p_curr.x-cx)/fx)*p_xyz.z;
+            p_xyz.y=((p_curr.y-cy)/fy)*p_xyz.z;
+            pts_obj.push_back( p_xyz );// 将(u,v,d)转成(x,y,z),并添加到pts_obj中.
+
+            // fill pts_img
+            pts_img.push_back( cv::Point2f(p_pre) );
+        }
+
+
+        // ---------------------------------------------pnp求解--------------------------------------
+        cv::Mat rvec, tvec, inliersPNP;
+        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
+        cout<<"PnP_result::inliers: "<<inliersPNP.rows<<endl;
+        cout<<"PnP_result::R="<<rvec<<endl;
+        cout<<"PnP_result::t="<<tvec<<endl;
+
+
+        // ---------------------------------------------pnp结果处理--------------------------------------
+        // set T_PreToCurr;
+        Matrix4f T_PreToCurr;
+        T_PreToCurr.setIdentity();
+        for (int r = 0; r < 3; ++r) for (int c = 0; c < 3; ++c) T_PreToCurr.m[c+4*r] = rvec.ptr<double>(r)[c];
+        for (int r = 0; r < 3; ++r) T_PreToCurr.m[3+4*r]=rvec.ptr<double>(r)[4];
+        // set T_CurrToPre
+        ITMLib::ITMExtrinsics temp;
+        temp.SetFrom(T_PreToCurr);
+        T_CurrToPre=temp.calib_inv;
+
+        return 0;
+    }
+
+
+
+
+
+    // step_3
+    int change_trackingState(
+                            const Matrix4f &T_CurrToPre,
+                            ITMLib::ITMTrackingState *trackingState
+                            )
+    {
+        // 相对位姿 李代数上
+        ORUtils::SE3Pose pose_relative(T_CurrToPre);
+
+        // 当前帧位姿 李代数上
+        pose_relative.MultiplyWith(trackingState->pose_d);
+
+        // 更新当前帧位姿
+        trackingState->pose_d->SetFrom(  &pose_relative  );
+        return 0;
+    }
+
+
+    //-------------------------------------------------------------------------------------core function-----------------------------------------------------------
+    int VO_initialize(const ITMLib::ITMView *view,ITMLib::ITMTrackingState *trackingState)
+    {
+        // data
+        vector< cv::KeyPoint > kps_pre;
+        vector< cv::KeyPoint > kps_curr;
+        vector< cv::DMatch > matches;
+        Matrix4f T_CurrToPre;
+
+
+        // solve
+        if(  0!=feature_matching_ORB(view,kps_pre,kps_curr,matches) )
+        {
+            std::cout<<"feature_matching is fail"<<std::endl;
+            return -1;
+        }
+        if( 0!=pnp(view,kps_pre,kps_curr,matches,T_CurrToPre) )
+        {
+            std::cout<<"pnp is fail"<<std::endl;
+            return -1;
+        }
+        if( 0!=change_trackingState(T_CurrToPre,trackingState) )
+        {
+            std::cout<<"change_trackingState is fail"<<std::endl;
+            return -1;
+        }
+
+        return 0;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -75,7 +446,7 @@ namespace ITMLib
             std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
 			if(view->rgb_prev->NoReSet==false)
             {
-//			    VO_initialize(trackingState,view);
+                QiLong::VO_initialize(trackingState,view);
             }
 		    tracker->TrackCamera(trackingState, view);
             long_count++;
@@ -175,6 +546,41 @@ namespace ITMLib
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //            显示pts_obj
 //            pcl::PointCloud<pcl::PointXYZ>::Ptr pts_obj_pcl(new pcl::PointCloud<pcl::PointXYZ>);
 //            pcl::PCDWriter writer;
@@ -190,8 +596,76 @@ namespace ITMLib
 //          detector = cv::FeatureDetector::create("ROB");
 //          descriptor = cv::DescriptorExtractor::create("ORB");
 
-
-
+//    int RANSAC_long(vector< cv::KeyPoint > &kp_pre,vector< cv::KeyPoint > &kp_cur,vector< cv::DMatch > &goodMatches,const cv::Mat &rgb_prev_Mat,const cv::Mat &rgb_curr_Mat)
+//    {
+//
+//        vector<cv::DMatch> m_Matches;
+//        m_Matches = goodMatches;
+//        int ptCount = goodMatches.size();
+//        if (ptCount < 100)
+//        {
+//            cout << "Don't find enough match points" << endl;
+//            return 0;
+//        }
+//
+//        //坐标转换为float类型
+//        vector <cv::KeyPoint> RAN_KP1, RAN_KP2;
+//        //size_t是标准C库中定义的，应为unsigned int，在64位系统中为long unsigned int,在C++中为了适应不同的平台，增加可移植性。
+//        for (size_t i = 0; i < m_Matches.size(); i++)
+//        {
+//            RAN_KP1.push_back(kp_pre[goodMatches[i].queryIdx]);
+//            RAN_KP2.push_back(kp_cur[goodMatches[i].trainIdx]);
+//            //RAN_KP1是要存储img01中能与img02匹配的点
+//            //goodMatches存储了这些匹配点对的img01和img02的索引值
+//        }
+//        //坐标变换
+//        vector <cv::Point2f> p01, p02;
+//        for (size_t i = 0; i < m_Matches.size(); i++)
+//        {
+//            p01.push_back(RAN_KP1[i].pt);
+//            p02.push_back(RAN_KP2[i].pt);
+//        }
+//        /*vector <Point2f> img1_corners(4);
+//        img1_corners[0] = Point(0,0);
+//        img1_corners[1] = Point(img_1.cols,0);
+//        img1_corners[2] = Point(img_1.cols, img_1.rows);
+//        img1_corners[3] = Point(0, img_1.rows);
+//        vector <Point2f> img2_corners(4);*/
+//        ////求转换矩阵
+//        //Mat m_homography;
+//        //vector<uchar> m;
+//        //m_homography = findHomography(p01, p02, RANSAC);//寻找匹配图像
+//        //求基础矩阵 Fundamental,3*3的基础矩阵
+//        vector<uchar> RansacStatus;
+//        cv::Mat Fundamental = findFundamentalMat(p01, p02, RansacStatus, cv::FM_RANSAC);
+//        //重新定义关键点RR_KP和RR_matches来存储新的关键点和基础矩阵，通过RansacStatus来删除误匹配点
+////            vector <cv::KeyPoint> RR_KP1, RR_KP2;
+//        kp_pre.clear();
+//        kp_cur.clear();
+////            vector <cv::DMatch> RR_matches;
+//        goodMatches.clear();
+//        int index = 0;
+//        for (size_t i = 0; i < m_Matches.size(); i++)
+//        {
+//            if (RansacStatus[i] != 0)
+//            {
+//                kp_pre.push_back(RAN_KP1[i]);
+//                kp_cur.push_back(RAN_KP2[i]);
+//                m_Matches[i].queryIdx = index;
+//                m_Matches[i].trainIdx = index;
+//                goodMatches.push_back(m_Matches[i]);
+//                index++;
+//            }
+//        }
+//        cout << "RANSAC后匹配点数" <<goodMatches.size()<< endl;
+//        cv::Mat img_RR_matches;
+//        drawMatches(rgb_prev_Mat, kp_pre, rgb_curr_Mat,kp_cur, goodMatches, img_RR_matches);
+//        imshow("After RANSAC",img_RR_matches);
+//        cv::imwrite( "../../goodmatche_RANSAC.png", img_RR_matches);
+//        //等待任意按键按下
+////            cv::waitKey(0);
+//
+//    }
 
 
 
