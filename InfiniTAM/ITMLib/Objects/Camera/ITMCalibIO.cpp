@@ -36,7 +36,6 @@ bool ITMLib::readExtrinsics(std::istream & src, ITMExtrinsics & dest)
 	src >> calib.m02 >> calib.m12 >> calib.m22 >> calib.m32;
 	calib.m03 = 0.0f; calib.m13 = 0.0f; calib.m23 = 0.0f; calib.m33 = 1.0f;
 	if (src.fail()) return false;
-
 	dest.SetFrom(calib);
 	return true;
 }

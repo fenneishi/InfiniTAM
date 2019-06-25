@@ -167,31 +167,30 @@ namespace ITMLib
 
         int align(cv::KeyPoint &kp,const Eigen::Matrix3d &camera_matrix_depth,const Eigen::Matrix3d  &camera_matrix_rgb,const Eigen::Matrix4d  &depth_to_rgb)
         {
-//          camera_matrix_depth检验
-            if(!(                               camera_matrix_depth(0,1)==0&&
+            //camera_matrix_rgb检验
+            if(!(                               camera_matrix_rgb(0,1)==0&&
+                camera_matrix_rgb(1,0)==0&&
+                camera_matrix_rgb(2,0)==0&& camera_matrix_rgb(2,1)==0&& camera_matrix_rgb(2,2)==1
+                ))
+            {
+                std::cout<<"camera_matrix_rgb is wrong"<<std::endl;
+                return -1;
+            }
+            //camera_matrix_depth检验
+            if(!(                             camera_matrix_depth(0,1)==0&&
                 camera_matrix_depth(1,0)==0&&
-                camera_matrix_depth(2,0)==0&&   camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
+                camera_matrix_depth(2,0)==0&& camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
                 ))
             {
                 std::cout<<"camera_matrix_depth is wrong"<<std::endl;
                 return -1;
             }
-//          camera_matrix_rgb检验
-            if(!(                             camera_matrix_rgb(0,1)==0&&
-                camera_matrix_rgb(1,0)==0&&
-                camera_matrix_rgb(2,0)==0&&   camera_matrix_rgb(2,1)==0&&   camera_matrix_rgb(2,2)==1
-            ))
+            //depth_to_rgb检验
+            if(! ( depth_to_rgb(3,0)==0 && depth_to_rgb(3,1)==0 && depth_to_rgb(3,2)==0 && depth_to_rgb(3,3)==1 ) )
             {
-                std::cout<<"camera_matrix_rgb is wrong"<<std::endl;
+                std::cout<<"depth_to_rgb is wrong"<<std::endl;
                 return -1;
             }
-//          depth_to_rgb检验
-//            if(!(depth_to_rgb(3,0)==0&&camera_matrix_depth(2,1)==0&&   camera_matrix_depth(2,2)==1
-//            ))
-//            {
-//                std::cout<<"depth_to_rgb is wrong"<<std::endl;
-//                return -1;
-//            }
 
 
 //          rgb参考系：齐次化(u,v)-->(u,v,1)
@@ -223,12 +222,24 @@ namespace ITMLib
         int rgb_align_to_depth(const ITMView *view,vector< cv::DMatch > &gooMatches,  vector< cv::KeyPoint > &kps_pre,vector< cv::KeyPoint > &kps_curr )
         {
 
+            // 彩色相机内参
+            float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
+            float fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
+            float cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
+            float cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
+            Eigen::Matrix3d  camera_matrix_rgb;
+            camera_matrix_rgb <<
+                    fx,  0,   cx,
+                    0,   fy,  cy,
+                    0,   0,   1 ;
+            std::cout<<"camera_matrix_rgb:"<<std::endl<<camera_matrix_rgb<<std::endl;
+
+
             // 深度相机内参
-            double fx=(double)view->calib.intrinsics_d.projectionParamsSimple.fx;
-            std::cout<<"fx"<<fx<<std::endl;
-            double fy=(double)view->calib.intrinsics_d.projectionParamsSimple.fy;
-            double cx=(double)view->calib.intrinsics_d.projectionParamsSimple.px;
-            double cy=(double)view->calib.intrinsics_d.projectionParamsSimple.py;
+            fx=view->calib.intrinsics_d.projectionParamsSimple.fx;
+            fy=view->calib.intrinsics_d.projectionParamsSimple.fy;
+            cx=view->calib.intrinsics_d.projectionParamsSimple.px;
+            cy=view->calib.intrinsics_d.projectionParamsSimple.py;
             Eigen::Matrix3d camera_matrix_depth;
             camera_matrix_depth<<   fx,  0,   cx,
                                     0,   fy,  cy,
@@ -236,28 +247,16 @@ namespace ITMLib
             std::cout<<"camera_matrix_depth:"<<std::endl<<camera_matrix_depth<<std::endl;
 
 
-            // 彩色相机内参
-            fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
-            fy=view->calib.intrinsics_rgb.projectionParamsSimple.fy;
-            cx=view->calib.intrinsics_rgb.projectionParamsSimple.px;
-            cy=view->calib.intrinsics_rgb.projectionParamsSimple.py;
-            Eigen::Matrix3d  camera_matrix_rgb;
-            camera_matrix_rgb << fx,  0,   cx,
-                                 0,   fy,  cy,
-                                 0,   0,   1 ;
-            std::cout<<"camera_matrix_rgb:"<<std::endl<<camera_matrix_rgb<<std::endl;
-
 
             //  彩色相机_深度相机转换矩阵的逆
             Matrix4f calib_inv=view->calib.trafo_rgb_to_depth.calib_inv; //Matrix4f是infiniTAM自己定义的类型
             Eigen::Matrix4d  depth_to_rgb;
             depth_to_rgb<<
-            calib_inv(0,0), calib_inv(0,1),calib_inv(0,2),calib_inv(0,3),
-            calib_inv(1,0), calib_inv(1,1),calib_inv(0,2),calib_inv(0,3),
-            calib_inv(2,0), calib_inv(2,1),calib_inv(2,2),calib_inv(2,3),
-            calib_inv(3,0), calib_inv(3,1),calib_inv(3,2),calib_inv(3,3);
+            calib_inv.m00,calib_inv.m10,calib_inv.m20,calib_inv.m30,//第1行
+            calib_inv.m01,calib_inv.m11,calib_inv.m21,calib_inv.m31,//第2行
+            calib_inv.m02,calib_inv.m12,calib_inv.m22,calib_inv.m32,//第3行
+            calib_inv.m03,calib_inv.m13,calib_inv.m23,calib_inv.m33,//第4行
             std::cout<<"depth_to_rgb:"<<std::endl<<depth_to_rgb<<std::endl;
-
 
 
             for (size_t i=0; i<gooMatches.size(); i++)
