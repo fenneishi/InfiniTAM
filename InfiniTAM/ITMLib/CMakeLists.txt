@@ -56,6 +56,7 @@ Core/ITMDenseSurfelMapper.h
 Core/ITMMainEngine.h
 Core/ITMMultiEngine.h
 Core/ITMTrackingController.h
+Core/gms_matcher.h #qilong add
 )
 
 ## lowlevel

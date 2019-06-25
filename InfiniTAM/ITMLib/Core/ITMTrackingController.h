@@ -35,19 +35,62 @@ using namespace std;
 //#include <pcl/visualization/cloud_viewer.h> 在mac上，这个玩意一include进来，就会导致大量报错
 #include <pcl/filters/voxel_grid.h>
 
-
+// GMS
+#include "gms_matcher.h"
 
 // InfiniTAM 内部头文件
 #include "../Utils/ITMImageTypes.h"
 #include "../../ORUtils/MemoryDeviceType.h" // 调用T GetElement(int n, MemoryDeviceType memoryType)接口所需。
 #include "../Utils/ITMMath.h"
 #include "../../ORUtils/SE3Pose.h"
+
+
 //------------------------------------------------------------------------------------------------------------------------------------------long
 
 
-namespace QiLong
+class  QiLong
 {
+public:
     //-----------------------------------------------------------------------------------tool function---------------------------------------------------------
+    cv::Mat DrawInlier(cv::Mat &src1, cv::Mat &src2, std::vector<KeyPoint> &kpt1, std::vector<KeyPoint> &kpt2, std::vector<DMatch> &inlier, int type) {
+        const int height = std::max(src1.rows, src2.rows);
+        const int width = src1.cols + src2.cols;
+        cv::Mat output(height, width, CV_8UC3, Scalar(0, 0, 0));
+        src1.copyTo(output(Rect(0, 0, src1.cols, src1.rows)));
+        src2.copyTo(output(Rect(src1.cols, 0, src2.cols, src2.rows)));
+
+        if (type == 1)
+        {
+            for (size_t i = 0; i < inlier.size(); i++)
+            {
+                cv::Point2f left = kpt1[inlier[i].queryIdx].pt;
+                cv::Point2f right = (kpt2[inlier[i].trainIdx].pt + Point2f((float)src1.cols, 0.f));
+                cv::line(output, left, right, Scalar(0, 255, 255));
+            }
+        }
+        else if (type == 2)
+        {
+            for (size_t i = 0; i < inlier.size(); i++)
+            {
+                cv::Point2f left = kpt1[inlier[i].queryIdx].pt;
+                cv::Point2f right = (kpt2[inlier[i].trainIdx].pt + Point2f((float)src1.cols, 0.f));
+                cv::line(output, left, right, Scalar(255, 0, 0));
+            }
+
+            for (size_t i = 0; i < inlier.size(); i++)
+            {
+                cv::Point2f left = kpt1[inlier[i].queryIdx].pt;
+                cv::Point2f right = (kpt2[inlier[i].trainIdx].pt + Point2f((float)src1.cols, 0.f));
+                cv::circle(output, left, 1, Scalar(0, 255, 255), 2);
+                cv::circle(output, right, 1, Scalar(0, 255, 0), 2);
+            }
+        }
+
+        return output;
+    }
+
+
+
     int align_pixel(
                 int u_new,int v_new,int u_old,int v_old,float d,
                 const Eigen::Matrix3d &camera_matrix_rgb,
@@ -177,8 +220,8 @@ namespace QiLong
                 int u_old=c;
                 int v_old=r;
                 // [u_new,v_new]
-                int u_new;
-                int v_new;
+                int u_new=u_old;
+                int v_new=v_old;
                 // aligen
                 align_pixel(u_new,v_new,u_old,v_old,d,camera_matrix_rgb,camera_matrix_depth,depth_to_rgb);
                 // undata depth_Mat
@@ -255,7 +298,48 @@ namespace QiLong
         return 0;
     }
 
+    int feature_matching_GMS(
+            const ITMLib::ITMView *view,
+            vector< cv::KeyPoint > &kps_pre,
+            vector< cv::KeyPoint > &kps_curr,
+            vector< cv::DMatch > &matches_gms)
+    {
 
+        // 建立特征提取器与描述子提取器(ORB)
+        Ptr<cv::ORB> orb = cv::ORB::create(100000);
+        orb->setFastThreshold(0);
+        //建立RGB彩色图<cv::Mat>
+        int width=view->calib.intrinsics_rgb.imgSize.width;
+        int height=view->calib.intrinsics_rgb.imgSize.height;
+        cv::Mat rgb_prev_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb_prev,rgb_prev_Mat);
+        cv::Mat rgb_curr_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb,rgb_curr_Mat);
+        // 提取关键点并计算描述子
+        cv::Mat desps_pre, desps_curr;
+        orb->detectAndCompute(rgb_prev_Mat, Mat(), kps_pre, desps_pre);
+        orb->detectAndCompute(rgb_curr_Mat, Mat(), kps_curr, desps_curr);
+        // 初步匹配(暴力匹配，汉明距离)
+        vector<cv::DMatch> matches_all;
+        BFMatcher matcher(NORM_HAMMING);
+        matcher.match(desps_pre,desps_curr, matches_all);
+        // GMS filter
+        std::vector<bool> vbInliers;
+        gms_matcher gms(kps_pre, rgb_prev_Mat.size(), kps_curr,rgb_curr_Mat.size(),matches_all);
+        cout << "GMS::Get total " << gms.GetInlierMask(vbInliers, false, false) << " matches." << endl;
+        // collect matches
+        for (size_t i = 0; i < vbInliers.size(); ++i)
+        {
+            if (vbInliers[i] == true)
+            {
+                matches_gms.push_back(matches_all[i]);
+            }
+        }
+        // draw matching
+        cv::Mat show = DrawInlier(rgb_prev_Mat, rgb_curr_Mat, kps_pre, kps_curr, matches_gms, 1);
+        cv::imshow("show", show);
+        cv::waitKey();
+    }
 
 
 
@@ -380,7 +464,7 @@ namespace QiLong
 
 
         // solve
-        if(  0!=feature_matching_ORB(view,kps_pre,kps_curr,matches) )
+        if(  0!=feature_matching_GMS(view,kps_pre,kps_curr,matches) )
         {
             std::cout<<"feature_matching is fail"<<std::endl;
             return -1;
@@ -399,7 +483,7 @@ namespace QiLong
         return 0;
     }
 
-}
+};
 
 
 
@@ -446,7 +530,7 @@ namespace ITMLib
             std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
 			if(view->rgb_prev->NoReSet==false)
             {
-                QiLong::VO_initialize(trackingState,view);
+                QiLong().VO_initialize(view,trackingState);
             }
 		    tracker->TrackCamera(trackingState, view);
             long_count++;
