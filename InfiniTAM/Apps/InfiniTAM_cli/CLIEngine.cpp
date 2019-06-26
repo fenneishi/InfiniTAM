@@ -5,10 +5,12 @@
 #include <string.h>
 
 #include "../../ORUtils/FileUtils.h"
+#include <iostream>
 
 using namespace InfiniTAM::Engine;
 using namespace InputSource;
 using namespace ITMLib;
+
 
 CLIEngine* CLIEngine::instance;
 
@@ -42,8 +44,11 @@ void CLIEngine::Initialise(ImageSourceEngine *imageSource, IMUSourceEngine *imuS
 
 bool CLIEngine::ProcessFrame()
 {
+
+
 	if (!imageSource->hasMoreImages()) return false;
 	imageSource->getImages(inputRGBImage, inputRawDepthImage);
+
 
 	if (imuSource != NULL) {
 		if (!imuSource->hasMoreMeasurements()) return false;
@@ -52,6 +57,20 @@ bool CLIEngine::ProcessFrame()
 
 	sdkResetTimer(&timer_instant);
 	sdkStartTimer(&timer_instant); sdkStartTimer(&timer_average);
+
+
+
+// -----------------------------------------qilong:test----------------------------------------------------------------------------
+    for (int r = 0; r < inputRawDepthImage->noDims.y; r++)
+    {
+        for (int c = 0; c < inputRawDepthImage->noDims.x; c++) {
+            auto d=inputRawDepthImage->GetElement(r * (inputRawDepthImage->noDims.x) + c, MEMORYDEVICE_CPU);
+            std::cout<<inputRawDepthImage->GetElement(r * (inputRawDepthImage->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+        }
+        std::cout<<std::endl;
+    }
+    std::cout<<"-----------------------------------------qilong:test1----------------------------------------------------------------------------"<<std::endl;
+// ------------------------------------------qilong:test---------------------------------------------------------------------------
 
 	//actual processing on the mailEngine
 	if (imuSource != NULL) mainEngine->ProcessFrame(inputRGBImage, inputRawDepthImage, inputIMUMeasurement);

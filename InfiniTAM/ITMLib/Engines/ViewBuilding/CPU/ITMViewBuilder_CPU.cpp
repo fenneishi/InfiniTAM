@@ -54,7 +54,7 @@ void ITMViewBuilder_CPU::UpdateView(ITMView **view_ptr, ITMUChar4Image *rgbImage
 //	注意，现在有三股势力:
 //	1是view_ptr，是传参进来的核心要建立的view.
 //	2是本地的shortImage，floatImage，用于存放未加工的rawDepthImage和某种加工过后的DepthImage，是过渡性角色。
-//	3是新建的局部view，也应该是临时性角色。
+//	3是新建的局部view，指向和形参view_ptr一致，所以对*view修改，就是对**view_ptr进行修改。
 
 
 	switch (view->calib.disparityCalib.GetType()) //
