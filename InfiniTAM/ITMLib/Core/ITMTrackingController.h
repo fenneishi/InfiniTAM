@@ -90,9 +90,8 @@ public:
     }
 
 
-
     int align_pixel(
-                int u_new,int v_new,int u_old,int v_old,float d,
+                int &u_new,int &v_new,int u_old,int v_old,float d,
                 const Eigen::Matrix3d &camera_matrix_rgb,
                 const Eigen::Matrix3d &camera_matrix_depth,
                 const Eigen::Matrix4d &depth_to_rgb)
@@ -135,13 +134,17 @@ public:
         // depth coordinate system
         Eigen::Vector3d point;
         point<<u_old,v_old,1;
-        point=camera_matrix_depth.inverse()*point;//这个乘法的准确性待商量,要仔细看看eigen的语法。
+//        Eigen:Vector3d point3D; // 用来检测 point=camera_matrix_depth.inverse()*point;是否正确
+//        point3D[0]=(point[0]-camera_matrix_depth(0,2))/camera_matrix_depth(0,0)*d;
+//        point3D[1]=(point[1]-camera_matrix_depth(1,2))/camera_matrix_depth(1,1)*d;
+//        point3D[2]=d;
+        point=camera_matrix_depth.inverse()*point;
         point=d*point;
-        Eigen::Vector4d point_1;
-        point_1<<point[0],point[1],point[2],1;
+        Eigen::Vector4d point4D;
+        point4D<<point[0],point[1],point[2],1;
         // rgb coordinate system
-        point_1=depth_to_rgb*point_1;
-        point<<point_1[0],point_1[1],point_1[2];
+        point4D=depth_to_rgb*point4D;
+        point<<point4D[0],point4D[1],point4D[2];
         point<<point[0]/point[2],point[1]/point[2],1;
         point=camera_matrix_rgb*point;
 
@@ -153,20 +156,22 @@ public:
         return 0;
     }
 
+
+
     int align_depthImage(const ITMLib::ITMView *view,cv::Mat &depth_Mat)
     {
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-        for (int r = 0; r < view->depth->noDims.y; r++)
-        {
-            for (int c = 0; c < view->depth->noDims.x; c++) {
-                // d
-                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-            }
-            std::cout<<std::endl;
-        }
-        std::cout<<"-----------------------------------------qilong:test8----------------------------------------------------------------------------"<<std::endl;
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        for (int r = 0; r < view->depth->noDims.y; r++)
+//        {
+//            for (int c = 0; c < view->depth->noDims.x; c++) {
+//                // d
+//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//            }
+//            std::cout<<std::endl;
+//        }
+//        std::cout<<"-----------------------------------------qilong:test8----------------------------------------------------------------------------"<<std::endl;
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
 
 
         // 彩色相机内参<Eigen::Matrix3d>
@@ -179,7 +184,7 @@ public:
                 fx,   0,  cx,
                 0,   fy,  cy,
                 0,   0,   1 ;
-        std::cout<<"camera_matrix_rgb:"<<std::endl<<camera_matrix_rgb<<std::endl;
+//        std::cout<<"camera_matrix_rgb:"<<std::endl<<camera_matrix_rgb<<std::endl;
 
 
         // 深度相机内参<Eigen::Matrix3d>
@@ -192,7 +197,7 @@ public:
                fx,   0,  cx,
                 0,  fy,  cy,
                 0,   0,   1;
-        std::cout<<"camera_matrix_depth:"<<std::endl<<camera_matrix_depth<<std::endl;
+//        std::cout<<"camera_matrix_depth:"<<std::endl<<camera_matrix_depth<<std::endl;
 
 
         //  外参：rgb_to_depth<Eigen::Matrix4d>
@@ -202,8 +207,8 @@ public:
                 calib.m00,calib.m10,calib.m20,calib.m30,//第1行
                 calib.m01,calib.m11,calib.m21,calib.m31,//第2行
                 calib.m02,calib.m12,calib.m22,calib.m32,//第3行
-                calib.m03,calib.m13,calib.m23,calib.m33,//第4行
-                std::cout<<"rgb_to_depth:"<<std::endl<<rgb_to_depth<<std::endl;
+                calib.m03,calib.m13,calib.m23,calib.m33;//第4行
+//                std::cout<<"rgb_to_depth:"<<std::endl<<rgb_to_depth<<std::endl;
 
         //  外参：depth_to_rgb<Eigen::Matrix4d>
         Matrix4f calib_inv=view->calib.trafo_rgb_to_depth.calib_inv; //Matrix4f是infiniTAM自己定义的类型
@@ -212,8 +217,8 @@ public:
                 calib_inv.m00,calib_inv.m10,calib_inv.m20,calib_inv.m30,//第1行
                 calib_inv.m01,calib_inv.m11,calib_inv.m21,calib_inv.m31,//第2行
                 calib_inv.m02,calib_inv.m12,calib_inv.m22,calib_inv.m32,//第3行
-                calib_inv.m03,calib_inv.m13,calib_inv.m23,calib_inv.m33,//第4行
-                std::cout<<"depth_to_rgb:"<<std::endl<<depth_to_rgb<<std::endl;
+                calib_inv.m03,calib_inv.m13,calib_inv.m23,calib_inv.m33;//第4行
+//                std::cout<<"depth_to_rgb:"<<std::endl<<depth_to_rgb<<std::endl;
 
         // depth_Mat初始化
         cv::Mat testChar;
@@ -225,27 +230,29 @@ public:
             }
         }
 
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-        for (int r = 0; r < view->depth->noDims.y; r++)
-        {
-            for (int c = 0; c < view->depth->noDims.x; c++) {
-                // d
-                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-            }
-            std::cout<<std::endl;
-        }
-        std::cout<<"-----------------------------------------qilong:test9----------------------------------------------------------------------------"<<std::endl;
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        for (int r = 0; r < view->depth->noDims.y; r++)
+//        {
+//            for (int c = 0; c < view->depth->noDims.x; c++) {
+//                // d
+//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//            }
+//            std::cout<<std::endl;
+//        }
+//        std::cout<<"-----------------------------------------qilong:test9----------------------------------------------------------------------------"<<std::endl;
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
 
-
+//        std::cout<<"float:"<<sizeof(float)<<std::endl;
+//        std::cout<<"double:"<<sizeof(double)<<std::endl;
         // depth_Mat赋值
         for (int r = 0; r < view->depth->noDims.y; r++)
         {
-            for (int c = 0; c < view->depth->noDims.x; c++) {
+            for (int c = 0; c < view->depth->noDims.x; c++)
+            {
                 // d
                 auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
                 // aligen(对于测不到的点，d=-1)
                 if(d>0)
                 {
@@ -255,23 +262,24 @@ public:
                     // [u_new,v_new]
                     int u_new=u_old;
                     int v_new=v_old;
+
+//                    align_pixel(u_new,v_new,u_old,v_old,d,camera_matrix_rgb,camera_matrix_depth,rgb_to_depth);
                     align_pixel(u_new,v_new,u_old,v_old,d,camera_matrix_rgb,camera_matrix_depth,depth_to_rgb);
                     // undata new depth_Mat
                     if( 0<=u_new&&u_new<640 && 0<=v_new&&v_new<480 )
-                        {depth_Mat.ptr<float>(v_new)[u_new]=d;}
+                    {
+                        depth_Mat.ptr<double>(v_new)[u_new]=(double)d;
+//                        std::cout<<"("<<v_new<<","<<u_new<<","<<d<<")";
+                    }
                 }
-
-
             }
-            std::cout<<std::endl;
         }
 
         for (int r = 0; r < view->depth->noDims.y; r++)
         {
             for (int c = 0; c <view->depth->noDims.x; c++) {
-                std::cout<<depth_Mat.ptr<double>(r)[c]<<",";
+//                std::cout<<depth_Mat.ptr<double>(r)[c]<<",";
             }
-            std::cout<<std::endl;
         }
         return 0;
     }
@@ -374,14 +382,14 @@ public:
         std::vector<bool> vbInliers;
         gms_matcher gms(kps_pre, rgb_prev_Mat.size(), kps_curr,rgb_curr_Mat.size(),matches_all);
         cout << "GMS::Get total " << gms.GetInlierMask(vbInliers, false, false) << " matches." << endl;
-        // collect matches
-//        for (size_t i = 0; i < vbInliers.size(); ++i)
-//        {
-//            if (vbInliers[i] == true)
-//            {
-//                matches_gms.push_back(matches_all[i]);
-//            }
-//        }
+//         collect matches
+        for (size_t i = 0; i < vbInliers.size(); ++i)
+        {
+            if (vbInliers[i] == true)
+            {
+                matches_gms.push_back(matches_all[i]);
+            }
+        }
 //        // draw matching
 //        cv::Mat show = DrawInlier(rgb_prev_Mat, rgb_curr_Mat, kps_pre, kps_curr, matches_gms, 1);
 //        cv::imshow("show", show);
@@ -398,33 +406,21 @@ public:
             const vector< cv::KeyPoint > &kps_pre,
             const vector< cv::KeyPoint > &kps_curr,
             const vector< cv::DMatch > &matches,
-            Matrix4f &T_CurrToPre )
+            ORUtils::SE3Pose &T_CurrToPre )
     {
 
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-        for (int r = 0; r < view->depth->noDims.y; r++)
-        {
-            for (int c = 0; c < view->depth->noDims.x; c++) {
-                // d
-                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-            }
-            std::cout<<std::endl;
-        }
-        std::cout<<"-----------------------------------------qilong:test6----------------------------------------------------------------------------"<<std::endl;
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        for (int r = 0; r < view->depth->noDims.y; r++)
+//        {
+//            for (int c = 0; c < view->depth->noDims.x; c++) {
+//                // d
+//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//            }
+//            std::cout<<std::endl;
+//        }
+//        std::cout<<"-----------------------------------------qilong:test6----------------------------------------------------------------------------"<<std::endl;
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
         // image size
         // orb
         int width=view->calib.intrinsics_rgb.imgSize.width;
@@ -447,20 +443,19 @@ public:
         };
         cv::Mat cameraMatrix( 3, 3, CV_64F, camera_matrix_data );
 
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        for (int r = 0; r < view->depth->noDims.y; r++)
+//        {
+//            for (int c = 0; c < view->depth->noDims.x; c++) {
+//                // d
+//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//            }
+//            std::cout<<std::endl;
+//        }
+//        std::cout<<"-----------------------------------------qilong:test7----------------------------------------------------------------------------"<<std::endl;
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
         // ---------------------------------------------pnp准备:对齐到rgb的深度图(仅当前帧)-----------------------------------
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-        for (int r = 0; r < view->depth->noDims.y; r++)
-        {
-            for (int c = 0; c < view->depth->noDims.x; c++) {
-                // d
-                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-            }
-            std::cout<<std::endl;
-        }
-        std::cout<<"-----------------------------------------qilong:test7----------------------------------------------------------------------------"<<std::endl;
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-
         cv::Mat depth_curr_Mat_align(height_d,width_d,CV_64FC1);
         align_depthImage(view,depth_curr_Mat_align);
 
@@ -479,7 +474,8 @@ public:
 
 
             // get depth and check
-            double d=depth_curr_Mat_align.ptr<double>((int)p_curr.x)[(int)p_curr.y];
+            double d=depth_curr_Mat_align.ptr<double>((int)p_curr.y)[(int)p_curr.x];
+//            std::cout<<"("<<p_curr.y<<","<<p_curr.x<<","<<d<<")";
             if (d == 0) continue; // d==0的点不参与pnp优化。
 
             // fill pts_obj
@@ -498,22 +494,23 @@ public:
         cv::Mat rvec, tvec, inliersPNP;
 //        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
         cv::solvePnP( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec);
-        cout<<"PnP_result::inliers: "<<inliersPNP.rows<<endl;
-        cout<<"PnP_result::R="<<rvec<<endl;
-        cout<<"PnP_result::t="<<tvec<<endl;
+//        cout<<"PnP_result::inliers: "<<inliersPNP.rows<<endl;
+//        cout<<"PnP_result::R="<<rvec<<endl;//注意这个R是李代数上面的
+//        cout<<"PnP_result::t="<<tvec<<endl;
 
 
         // ---------------------------------------------pnp结果处理--------------------------------------
         // set T_PreToCurr;
-        Matrix4f T_PreToCurr;
-        T_PreToCurr.setIdentity();
-        for (int r = 0; r < 3; ++r) for (int c = 0; c < 3; ++c) T_PreToCurr.m[c+4*r] = rvec.ptr<double>(r)[c];
-        for (int r = 0; r < 3; ++r) T_PreToCurr.m[3+4*r]=rvec.ptr<double>(r)[4];
-        // set T_CurrToPre
-        ITMLib::ITMExtrinsics temp;
-        temp.SetFrom(T_PreToCurr);
-        T_CurrToPre=temp.calib_inv;
-
+        ORUtils::SE3Pose T_PreToCurr(
+                (float)tvec.ptr<double>(0)[0],(float)tvec.ptr<double>(0)[1],(float)tvec.ptr<double>(0)[2],
+                (float)rvec.ptr<double>(0)[0],(float)rvec.ptr<double>(0)[1],(float)rvec.ptr<double>(0)[2]
+                );
+        T_PreToCurr.Coerce();
+        // set T_CurrToPre;
+        T_CurrToPre.SetInvM(T_PreToCurr.GetM());
+        T_CurrToPre.Coerce();
+        std::cout<<"PnP result::T"<<std::endl;
+        std::cout<<T_CurrToPre.GetM()<<std::endl;
         return 0;
     }
 
@@ -523,18 +520,16 @@ public:
 
     // step_3
     int change_trackingState(
-                            const Matrix4f &T_CurrToPre,
+                            const ORUtils::SE3Pose &T_CurrToPre,
                             ITMLib::ITMTrackingState *trackingState
                             )
     {
-        // 相对位姿 李代数上
-        ORUtils::SE3Pose pose_relative(T_CurrToPre);
-
         // 当前帧位姿 李代数上
-        pose_relative.MultiplyWith(trackingState->pose_d);
+        ORUtils::SE3Pose pose_curr(T_CurrToPre);// 先用T_CurrTopre进行初始化
+        pose_curr.MultiplyWith(trackingState->pose_d);// 再右乘旧的位姿(即前一帧的位姿）
 
         // 更新当前帧位姿
-        trackingState->pose_d->SetFrom(  &pose_relative  );
+        trackingState->pose_d->SetFrom(  &pose_curr  );
         return 0;
     }
 
@@ -546,21 +541,21 @@ public:
         vector< cv::KeyPoint > kps_pre;
         vector< cv::KeyPoint > kps_curr;
         vector< cv::DMatch > matches;
-        Matrix4f T_CurrToPre;
+        ORUtils::SE3Pose T_CurrToPre;
 
 
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-        for (int r = 0; r < view->depth->noDims.y; r++)
-        {
-            for (int c = 0; c < view->depth->noDims.x; c++) {
-                // d
-                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-            }
-            std::cout<<std::endl;
-        }
-        std::cout<<"-----------------------------------------qilong:test5----------------------------------------------------------------------------"<<std::endl;
-        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//        for (int r = 0; r < view->depth->noDims.y; r++)
+//        {
+//            for (int c = 0; c < view->depth->noDims.x; c++) {
+//                // d
+//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//            }
+//            std::cout<<std::endl;
+//        }
+//        std::cout<<"-----------------------------------------qilong:test5----------------------------------------------------------------------------"<<std::endl;
+//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
 
 
 
@@ -630,22 +625,22 @@ namespace ITMLib
 		{
 			static int long_count=0;
             std::cout<<"--------------------------------process:"<<long_count<<"-------------------------------------"<<endl;
-            std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
+//            std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
 
 
 
-            // -----------------------------------------qilong:test----------------------------------------------------------------------------
-            for (int r = 0; r < view->depth->noDims.y; r++)
-            {
-                for (int c = 0; c < view->depth->noDims.x; c++) {
-                    // d
-                    auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-                    std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-                }
-                std::cout<<std::endl;
-            }
-            std::cout<<"-----------------------------------------qilong:test4----------------------------------------------------------------------------"<<std::endl;
-            // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//            // -----------------------------------------qilong:test----------------------------------------------------------------------------
+//            for (int r = 0; r < view->depth->noDims.y; r++)
+//            {
+//                for (int c = 0; c < view->depth->noDims.x; c++) {
+//                    // d
+//                    auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+//                    std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//                }
+//                std::cout<<std::endl;
+//            }
+//            std::cout<<"-----------------------------------------qilong:test4----------------------------------------------------------------------------"<<std::endl;
+//            // -----------------------------------------qilong:test----------------------------------------------------------------------------
 
 
 

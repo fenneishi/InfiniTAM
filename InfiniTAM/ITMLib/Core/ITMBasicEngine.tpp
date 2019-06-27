@@ -252,18 +252,18 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 
 
 
-// -----------------------------------------qilong:test----------------------------------------------------------------------------
-    for (int r = 0; r < rawDepthImage->noDims.y; r++)
-    {
-        for (int c = 0; c < rawDepthImage->noDims.x; c++) {
-            // d
-            auto d=rawDepthImage->GetElement(r * (rawDepthImage->noDims.x) + c, MEMORYDEVICE_CPU);
-            std::cout<<rawDepthImage->GetElement(r * (rawDepthImage->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-        }
-        std::cout<<std::endl;
-    }
-    std::cout<<"-----------------------------------------qilong:test2----------------------------------------------------------------------------"<<std::endl;
-// -----------------------------------------qilong:test----------------------------------------------------------------------------
+//// -----------------------------------------qilong:test----------------------------------------------------------------------------
+//    for (int r = 0; r < rawDepthImage->noDims.y; r++)
+//    {
+//        for (int c = 0; c < rawDepthImage->noDims.x; c++) {
+//            // d
+//            auto d=rawDepthImage->GetElement(r * (rawDepthImage->noDims.x) + c, MEMORYDEVICE_CPU);
+//            std::cout<<rawDepthImage->GetElement(r * (rawDepthImage->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//        }
+//        std::cout<<std::endl;
+//    }
+//    std::cout<<"-----------------------------------------qilong:test2----------------------------------------------------------------------------"<<std::endl;
+//// -----------------------------------------qilong:test----------------------------------------------------------------------------
 
 
 
@@ -282,18 +282,18 @@ ITMTrackingState::TrackingResult ITMBasicEngine<TVoxel,TIndex>::ProcessFrame(ITM
 
 
 
-// -----------------------------------------qilong:test----------------------------------------------------------------------------
-    for (int r = 0; r < view->depth->noDims.y; r++)
-    {
-        for (int c = 0; c < view->depth->noDims.x; c++) {
-            // d
-            auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-            std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-        }
-        std::cout<<std::endl;
-    }
-    std::cout<<"-----------------------------------------qilong:test3----------------------------------------------------------------------------"<<std::endl;
-// -----------------------------------------qilong:test----------------------------------------------------------------------------
+//// -----------------------------------------qilong:test----------------------------------------------------------------------------
+//    for (int r = 0; r < view->depth->noDims.y; r++)
+//    {
+//        for (int c = 0; c < view->depth->noDims.x; c++) {
+//            // d
+//            auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
+//            std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
+//        }
+//        std::cout<<std::endl;
+//    }
+//    std::cout<<"-----------------------------------------qilong:test3----------------------------------------------------------------------------"<<std::endl;
+//// -----------------------------------------qilong:test----------------------------------------------------------------------------
 
 
 
