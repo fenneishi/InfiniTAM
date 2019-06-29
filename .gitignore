@@ -22,6 +22,7 @@ InfiniTAM/.idea/
 InfiniTAM/.idea/*
 InfiniTAM/.idea
 mesh.stl
+testRes
 
 # QtCreator CMake
 CMakeLists.txt.user*

@@ -17,7 +17,7 @@ VO所需的头文件*/
 #include <vector>
 #include <map>
 #include <cmath>
-using namespace std;
+#include <string>
 
 // Eigen
 #include <eigen3/Eigen/Core>
@@ -40,7 +40,6 @@ using namespace std;
 #include "gms_matcher.h"
 
 // sift
-
 #include <opencv2/xfeatures2d.hpp>
 
 // InfiniTAM 内部头文件
@@ -165,19 +164,6 @@ public:
 
     int align_depthImage(const ITMLib::ITMView *view,cv::Mat &depth_Mat)
     {
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-//        for (int r = 0; r < view->depth->noDims.y; r++)
-//        {
-//            for (int c = 0; c < view->depth->noDims.x; c++) {
-//                // d
-//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-//            }
-//            std::cout<<std::endl;
-//        }
-//        std::cout<<"-----------------------------------------qilong:test8----------------------------------------------------------------------------"<<std::endl;
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-
 
         // 彩色相机内参<Eigen::Matrix3d>
         float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
@@ -234,22 +220,6 @@ public:
                 depth_Mat.ptr<double>(r)[c] = (double)0;
             }
         }
-
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-//        for (int r = 0; r < view->depth->noDims.y; r++)
-//        {
-//            for (int c = 0; c < view->depth->noDims.x; c++) {
-//                // d
-//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-//            }
-//            std::cout<<std::endl;
-//        }
-//        std::cout<<"-----------------------------------------qilong:test9----------------------------------------------------------------------------"<<std::endl;
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-
-//        std::cout<<"float:"<<sizeof(float)<<std::endl;
-//        std::cout<<"double:"<<sizeof(double)<<std::endl;
         // depth_Mat赋值
         for (int r = 0; r < view->depth->noDims.y; r++)
         {
@@ -354,7 +324,7 @@ public:
         cv::Mat imgMatches;
         cv::drawMatches( rgb_prev_Mat, kps_pre,rgb_curr_Mat,kps_curr, matches, imgMatches );
         cv::imshow( "matches", imgMatches );
-        cv::imwrite( "../../matches.png", imgMatches );
+//        cv::imwrite( "../../matches.png", imgMatches );
         return 0;
     }
 
@@ -405,13 +375,14 @@ public:
     }
 
 
-    int feature_matching_GMS_SIFT(
+    int feature_matching_SIFT(
             const ITMLib::ITMView *view,
             vector< cv::KeyPoint > &kps_pre,
             vector< cv::KeyPoint > &kps_curr,
-            vector< cv::DMatch > &matches_all)
+            vector< cv::DMatch > &goodMatches)
     {
-
+        static int count=1;
+        // ----------------------------------extract features--------------------------
         // 建立特征提取器与描述子提取器(sift)
         Ptr<cv::Feature2D> sift = cv::xfeatures2d::SURF::create();
         //建立RGB彩色图<cv::Mat>
@@ -427,11 +398,13 @@ public:
         sift->detect(rgb_curr_Mat, kps_curr);
         sift->compute(rgb_prev_Mat, kps_pre, desps_pre);
         sift->compute(rgb_curr_Mat, kps_curr, desps_curr);
-        // 初步匹配
+        // ----------------------------------match-------------------------------------
+        vector< cv::DMatch > matches;
         // 暴力匹配，汉明距离
 //        vector<cv::DMatch> matches_all;
 //        BFMatcher matcher(NORM_HAMMING);
 //        BFMatcher matcher;
+        // flann匹配，汉明距离
         cv::FlannBasedMatcher matcher;
         if(desps_pre.type()!=CV_32F) {
             desps_pre.convertTo(desps_pre, CV_32F);
@@ -444,37 +417,36 @@ public:
             std::cout<<"descriptor empty"<<std::endl;
         } else
         {
-            matcher.match(desps_pre,desps_curr, matches_all);
+            matcher.match(desps_pre,desps_curr, matches);
         }
-        cout<<"Find total "<<matches_all.size()<<" matches."<<endl;
-        // 可视化：显示匹配的特征
+        cout<<"sift total "<<matches.size()<<" matches."<<endl;
         cv::Mat imgMatches;
-        cv::drawMatches( rgb_prev_Mat, kps_pre,rgb_curr_Mat,kps_curr, matches_all, imgMatches );
-        cv::imshow( "matches", imgMatches );
-        cv::imwrite( "../../matches.png", imgMatches );
+        cv::drawMatches( rgb_prev_Mat, kps_pre,rgb_curr_Mat,kps_curr, matches, imgMatches );
+//        cv::imshow( "SIFT_matchnes", imgMatches );
+        std::string fileName=std::string("../../data/InfiniTAM/testRes/")+std::to_string(count)+std::string("_SIFT_matches.jpg");
+        cv::imwrite( fileName, imgMatches );
+        // ----------------------------------filter-------------------------------------
+        double minDis = 9999;
+        for ( size_t i=0; i<matches.size(); i++ )
+        {
+            if ( matches[i].distance < minDis)
+                minDis = matches[i].distance;
+        }
 
-//        // GMS filter
-//        std::vector<bool> vbInliers;
-//        gms_matcher gms(kps_pre, rgb_prev_Mat.size(), kps_curr,rgb_curr_Mat.size(),matches_all);
-//        cout << "GMS::Get total " << gms.GetInlierMask(vbInliers, false, false) << " matches." << endl;
-////         collect matches
-//        for (size_t i = 0; i < vbInliers.size(); ++i)
-//        {
-//            if (vbInliers[i] == true)
-//            {
-//                matches_gms.push_back(matches_all[i]);
-//            }
-//        }
-//        cout<<"Find total "<<matches_all.size()<<" matches."<<endl;
-//        // draw matching
-//        cv::Mat show = DrawInlier(rgb_prev_Mat, rgb_curr_Mat, kps_pre, kps_curr, matches_gms, 1);
-//        cv::imshow("show", show);
-//        cv::waitKey();
+        for ( size_t i=0; i<matches.size(); i++ )
+        {
+//            if (matches[i].distance < 1*minDis)//筛选匹配，把距离太大的去掉(这里使用的准则是去掉大于2倍最小距离的匹配)
+                goodMatches.push_back( matches[i] );
+        }
+        cout<<"sift total "<<goodMatches.size()<<" goodmatches."<<endl;
+        cv::drawMatches(rgb_prev_Mat,kps_pre,rgb_curr_Mat,kps_curr,goodMatches,imgMatches );
+//        cv::imshow( "SFIT_goodmatches", imgMatches );
+        fileName=std::string("../../data/InfiniTAM/testRes/")+std::to_string(count)+std::string("_SIFT_goodMatches.jpg");
+        cv::imwrite( fileName, imgMatches );
 
-        return 0;
+
+        count++;return 0;
     }
-
-
 
 
     // step_2
@@ -485,19 +457,7 @@ public:
             const vector< cv::DMatch > &matches,
             ORUtils::SE3Pose &T_CurrToPre )
     {
-
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-//        for (int r = 0; r < view->depth->noDims.y; r++)
-//        {
-//            for (int c = 0; c < view->depth->noDims.x; c++) {
-//                // d
-//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-//            }
-//            std::cout<<std::endl;
-//        }
-//        std::cout<<"-----------------------------------------qilong:test6----------------------------------------------------------------------------"<<std::endl;
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
+        static int count=1;
         // image size
         // orb
         int width=view->calib.intrinsics_rgb.imgSize.width;
@@ -505,8 +465,6 @@ public:
         // depth
         int width_d=view->calib.intrinsics_d.imgSize.width;
         int height_d=view->calib.intrinsics_d.imgSize.height;
-
-
 
         // ---------------------------------------------pnp准备:建立相机矩阵---------------------------------------------
         float fx=view->calib.intrinsics_rgb.projectionParamsSimple.fx;
@@ -520,23 +478,9 @@ public:
         };
         cv::Mat cameraMatrix( 3, 3, CV_64F, camera_matrix_data );
 
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-//        for (int r = 0; r < view->depth->noDims.y; r++)
-//        {
-//            for (int c = 0; c < view->depth->noDims.x; c++) {
-//                // d
-//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-//            }
-//            std::cout<<std::endl;
-//        }
-//        std::cout<<"-----------------------------------------qilong:test7----------------------------------------------------------------------------"<<std::endl;
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-        // ---------------------------------------------pnp准备:对齐到rgb的深度图(仅当前帧)-----------------------------------
+       // ---------------------------------------------pnp准备:对齐到rgb的深度图(仅当前帧)-----------------------------------
         cv::Mat depth_curr_Mat_align(height_d,width_d,CV_64FC1);
         align_depthImage(view,depth_curr_Mat_align);
-
-
 
         // ---------------------------------------------pnp准备:建立3Dpoints,2Dpoints--------------------------------------
         // creat
@@ -566,15 +510,31 @@ public:
             pts_img.push_back( cv::Point2f(p_pre) );
         }
 
-
         // ---------------------------------------------pnp求解--------------------------------------
-        cv::Mat rvec, tvec, inliersPNP;
-        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
+        // ----------PnP
+//        cv::Mat rvec, tvec;
 //        cv::solvePnP( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec);
-//        cout<<"PnP_result::inliers: "<<inliersPNP.rows<<endl;
-//        cout<<"PnP_result::R="<<rvec<<endl;//注意这个R是李代数上面的
-//        cout<<"PnP_result::t="<<tvec<<endl;
+        // ----------PnPRansac
+        cv::Mat rvec, tvec,inliersPNP;
+        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
+        //建立RGB彩色图<cv::Mat>
+        cv::Mat rgb_prev_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb_prev,rgb_prev_Mat);
+        cv::Mat rgb_curr_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb,rgb_curr_Mat);
+        // 画出inliers匹配
+        vector< cv::DMatch > ransacMatches;
+        for (int i=0; i<inliersPNP.rows; i++) //inliersPNP.rows每次算出来都是0；
+        {
+            ransacMatches.push_back( matches[inliersPNP.ptr<int>(i)[0]] );
+        }
 
+        cv::Mat imgMatches;
+        cv::drawMatches(rgb_prev_Mat,kps_pre,rgb_curr_Mat,kps_curr,ransacMatches, imgMatches);
+//        cv::imshow( "ransacMatches", imgMatches );
+//        cv::waitKey( 0 );
+        std::string fileName=std::string("../../data/InfiniTAM/testRes/")+std::to_string(count)+std::string("_SIFT_ransacMatches.jpg");
+        cv::imwrite( fileName, imgMatches);
 
         // ---------------------------------------------pnp结果处理--------------------------------------
         // set T_PreToCurr;
@@ -601,6 +561,7 @@ public:
         std::cout<<"VO(curr_to_pre) result::Rotation angle(radian)::"<<angle<<std::endl;
         std::cout<<"VO(curr_to_pre) result::Rotation angle(degree)::"<<angle/3.1415926*180<<std::endl;
 
+        count++;
         return 0;
     }
 
@@ -620,6 +581,8 @@ public:
 
         // 更新当前帧位姿
         trackingState->pose_d->SetFrom(  &pose_curr  );
+
+        std::cout<<"pose_currDepth"<<trackingState->pose_d;
         return 0;
     }
 
@@ -633,23 +596,8 @@ public:
         vector< cv::DMatch > matches;
         ORUtils::SE3Pose T_CurrToPre;
 
-
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-//        for (int r = 0; r < view->depth->noDims.y; r++)
-//        {
-//            for (int c = 0; c < view->depth->noDims.x; c++) {
-//                // d
-//                auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-//                std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-//            }
-//            std::cout<<std::endl;
-//        }
-//        std::cout<<"-----------------------------------------qilong:test5----------------------------------------------------------------------------"<<std::endl;
-//        // -----------------------------------------qilong:test----------------------------------------------------------------------------
-
-
         // solve
-        if(  0!=feature_matching_GMS_SIFT(view,kps_pre,kps_curr,matches) )
+        if(  0!=feature_matching_SIFT(view,kps_pre,kps_curr,matches) )
         {
             std::cout<<"feature_matching is fail"<<std::endl;
             return -1;
@@ -686,9 +634,6 @@ public:
 
 
 
-
-
-
 namespace ITMLib
 {
 	/** \brief
@@ -701,38 +646,10 @@ namespace ITMLib
 		const ITMLibSettings *settings;
 		ITMTracker *tracker;
 	public:
-
-
-
-
-
-
-
 		void Track(ITMTrackingState *trackingState, const ITMView *view)
 		{
 			static int long_count=0;
             std::cout<<"--------------------------------process:"<<long_count<<"-------------------------------------"<<endl;
-//            std::cout<<"view state(noReSet)"<<view->rgb_prev->NoReSet<<std::endl;
-
-
-
-//            // -----------------------------------------qilong:test----------------------------------------------------------------------------
-//            for (int r = 0; r < view->depth->noDims.y; r++)
-//            {
-//                for (int c = 0; c < view->depth->noDims.x; c++) {
-//                    // d
-//                    auto d=view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU);
-//                    std::cout<<view->depth->GetElement(r * (view->depth->noDims.x) + c, MEMORYDEVICE_CPU)<<",";
-//                }
-//                std::cout<<std::endl;
-//            }
-//            std::cout<<"-----------------------------------------qilong:test4----------------------------------------------------------------------------"<<std::endl;
-//            // -----------------------------------------qilong:test----------------------------------------------------------------------------
-
-
-
-
-
             if(view->rgb_prev->NoReSet==false)
             {
                 QiLong().VO_initialize(view,trackingState);
