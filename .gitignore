@@ -21,6 +21,7 @@ InfiniTAM/*.tags
 InfiniTAM/.idea/
 InfiniTAM/.idea/*
 InfiniTAM/.idea
+mesh.stl
 
 # QtCreator CMake
 CMakeLists.txt.user*

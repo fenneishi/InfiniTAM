@@ -11,6 +11,8 @@
 /* WARNING: the following 3x3 and 4x4 matrix are using column major, to	*/
 /* be consistent with OpenGL default rather than most C/C++ default.	*/
 /* In all other parts of the code, we still use row major order.		*/
+/* 也就说，[0] [1] [2] 是第一列，而不是第一行*/
+/* 但是在代码的其他部分，仍然是行为主序列*/
 /************************************************************************/
 
 namespace ORUtils {

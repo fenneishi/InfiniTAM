@@ -16,6 +16,7 @@ VO所需的头文件*/
 #include <fstream>
 #include <vector>
 #include <map>
+#include <cmath>
 using namespace std;
 
 // Eigen
@@ -37,6 +38,10 @@ using namespace std;
 
 // GMS
 #include "gms_matcher.h"
+
+// sift
+
+#include <opencv2/xfeatures2d.hpp>
 
 // InfiniTAM 内部头文件
 #include "../Utils/ITMImageTypes.h"
@@ -353,7 +358,7 @@ public:
         return 0;
     }
 
-    int feature_matching_GMS(
+    int feature_matching_GMS_ORB(
             const ITMLib::ITMView *view,
             vector< cv::KeyPoint > &kps_pre,
             vector< cv::KeyPoint > &kps_curr,
@@ -374,7 +379,8 @@ public:
         cv::Mat desps_pre, desps_curr;
         orb->detectAndCompute(rgb_prev_Mat, Mat(), kps_pre, desps_pre);
         orb->detectAndCompute(rgb_curr_Mat, Mat(), kps_curr, desps_curr);
-        // 初步匹配(暴力匹配，汉明距离)
+        // 初步匹配
+        // 暴力匹配，汉明距离
         vector<cv::DMatch> matches_all;
         BFMatcher matcher(NORM_HAMMING);
         matcher.match(desps_pre,desps_curr, matches_all);
@@ -390,6 +396,76 @@ public:
                 matches_gms.push_back(matches_all[i]);
             }
         }
+        // draw matching
+        cv::Mat show = DrawInlier(rgb_prev_Mat, rgb_curr_Mat, kps_pre, kps_curr, matches_gms, 1);
+        cv::imshow("show", show);
+        cv::waitKey();
+
+        return 0;
+    }
+
+
+    int feature_matching_GMS_SIFT(
+            const ITMLib::ITMView *view,
+            vector< cv::KeyPoint > &kps_pre,
+            vector< cv::KeyPoint > &kps_curr,
+            vector< cv::DMatch > &matches_all)
+    {
+
+        // 建立特征提取器与描述子提取器(sift)
+        Ptr<cv::Feature2D> sift = cv::xfeatures2d::SURF::create();
+        //建立RGB彩色图<cv::Mat>
+        int width=view->calib.intrinsics_rgb.imgSize.width;
+        int height=view->calib.intrinsics_rgb.imgSize.height;
+        cv::Mat rgb_prev_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb_prev,rgb_prev_Mat);
+        cv::Mat rgb_curr_Mat(height,width,CV_8UC3);
+        ITMUChar4Image_to_CVMat(view->rgb,rgb_curr_Mat);
+        // 提取关键点并计算描述子
+        cv::Mat desps_pre, desps_curr;
+        sift->detect(rgb_prev_Mat, kps_pre);
+        sift->detect(rgb_curr_Mat, kps_curr);
+        sift->compute(rgb_prev_Mat, kps_pre, desps_pre);
+        sift->compute(rgb_curr_Mat, kps_curr, desps_curr);
+        // 初步匹配
+        // 暴力匹配，汉明距离
+//        vector<cv::DMatch> matches_all;
+//        BFMatcher matcher(NORM_HAMMING);
+//        BFMatcher matcher;
+        cv::FlannBasedMatcher matcher;
+        if(desps_pre.type()!=CV_32F) {
+            desps_pre.convertTo(desps_pre, CV_32F);
+        }
+        if(desps_curr.type()!=CV_32F) {
+            desps_curr.convertTo(desps_curr, CV_32F);
+        }
+        if(desps_pre.empty()||desps_curr.empty())
+        {
+            std::cout<<"descriptor empty"<<std::endl;
+        } else
+        {
+            matcher.match(desps_pre,desps_curr, matches_all);
+        }
+        cout<<"Find total "<<matches_all.size()<<" matches."<<endl;
+        // 可视化：显示匹配的特征
+        cv::Mat imgMatches;
+        cv::drawMatches( rgb_prev_Mat, kps_pre,rgb_curr_Mat,kps_curr, matches_all, imgMatches );
+        cv::imshow( "matches", imgMatches );
+        cv::imwrite( "../../matches.png", imgMatches );
+
+//        // GMS filter
+//        std::vector<bool> vbInliers;
+//        gms_matcher gms(kps_pre, rgb_prev_Mat.size(), kps_curr,rgb_curr_Mat.size(),matches_all);
+//        cout << "GMS::Get total " << gms.GetInlierMask(vbInliers, false, false) << " matches." << endl;
+////         collect matches
+//        for (size_t i = 0; i < vbInliers.size(); ++i)
+//        {
+//            if (vbInliers[i] == true)
+//            {
+//                matches_gms.push_back(matches_all[i]);
+//            }
+//        }
+//        cout<<"Find total "<<matches_all.size()<<" matches."<<endl;
 //        // draw matching
 //        cv::Mat show = DrawInlier(rgb_prev_Mat, rgb_curr_Mat, kps_pre, kps_curr, matches_gms, 1);
 //        cv::imshow("show", show);
@@ -397,6 +473,7 @@ public:
 
         return 0;
     }
+
 
 
 
@@ -492,8 +569,8 @@ public:
 
         // ---------------------------------------------pnp求解--------------------------------------
         cv::Mat rvec, tvec, inliersPNP;
-//        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
-        cv::solvePnP( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec);
+        cv::solvePnPRansac( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec, false, 100, 1.0, 0.99, inliersPNP);
+//        cv::solvePnP( pts_obj, pts_img, cameraMatrix, cv::Mat(), rvec, tvec);
 //        cout<<"PnP_result::inliers: "<<inliersPNP.rows<<endl;
 //        cout<<"PnP_result::R="<<rvec<<endl;//注意这个R是李代数上面的
 //        cout<<"PnP_result::t="<<tvec<<endl;
@@ -509,8 +586,21 @@ public:
         // set T_CurrToPre;
         T_CurrToPre.SetInvM(T_PreToCurr.GetM());
         T_CurrToPre.Coerce();
-        std::cout<<"PnP result::T"<<std::endl;
-        std::cout<<T_CurrToPre.GetM()<<std::endl;
+
+        // print transform matrix
+        Matrix4f T=T_CurrToPre.GetM();
+        std::cout<<"VO(curr_to_pre) result::T"<<std::endl;
+        std::cout<<T;
+        // print translation length
+        float length=std::pow(T.m30*T.m30+T.m31*T.m31+T.m32*T.m32,0.5);
+        std::cout<<"VO(curr_to_pre) result::translation::"<<length<<std::endl;
+        // print Rotation angle
+        const float* params;
+        params=T_CurrToPre.GetParams();
+        float angle=std::pow(params[3]*params[3]+params[4]*params[4]+params[5]*params[5],0.5);
+        std::cout<<"VO(curr_to_pre) result::Rotation angle(radian)::"<<angle<<std::endl;
+        std::cout<<"VO(curr_to_pre) result::Rotation angle(degree)::"<<angle/3.1415926*180<<std::endl;
+
         return 0;
     }
 
@@ -558,11 +648,8 @@ public:
 //        // -----------------------------------------qilong:test----------------------------------------------------------------------------
 
 
-
-
-
         // solve
-        if(  0!=feature_matching_GMS(view,kps_pre,kps_curr,matches) )
+        if(  0!=feature_matching_GMS_SIFT(view,kps_pre,kps_curr,matches) )
         {
             std::cout<<"feature_matching is fail"<<std::endl;
             return -1;
